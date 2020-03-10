@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+
+
+  <meta name="keywords" content=".net,webapi,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="sharkyzh" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="一、Get请求基础类型参数123456789101112131415161718[HttpGet]public string GetAllChargingData(int id, string name)&amp;#123;    return &amp;quot;ChargingData&amp;quot; + id;&amp;#125;---$.ajax(&amp;#123;    type: &amp;quot;get&amp;quot;,">
+<meta name="keywords" content=".net,webapi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebApi接口参数传参详解">
+<meta property="og:url" content="http://blog.sharkyzh.cn/post/fcb54dee.html">
+<meta property="og:site_name" content="sharkyzh">
+<meta property="og:description" content="一、Get请求基础类型参数123456789101112131415161718[HttpGet]public string GetAllChargingData(int id, string name)&amp;#123;    return &amp;quot;ChargingData&amp;quot; + id;&amp;#125;---$.ajax(&amp;#123;    type: &amp;quot;get&amp;quot;,">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-03-10T10:40:23.597Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WebApi接口参数传参详解">
+<meta name="twitter:description" content="一、Get请求基础类型参数123456789101112131415161718[HttpGet]public string GetAllChargingData(int id, string name)&amp;#123;    return &amp;quot;ChargingData&amp;quot; + id;&amp;#125;---$.ajax(&amp;#123;    type: &amp;quot;get&amp;quot;,">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.sharkyzh.cn/post/fcb54dee.html">
+
+
+
+
+
+  <title>WebApi接口参数传参详解 | sharkyzh</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3e36c10e3cb41adff9e99d9ea67ecd86";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-1797857485932601",
+      enable_page_level_ads: true
+    });
+  </script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">sharkyzh</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Code is Poetry, Poetry is Beautiful</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.sharkyzh.cn/post/fcb54dee.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sharkyzh">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="sharkyzh">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WebApi接口参数传参详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-12T17:34:42+08:00">
+                2018-01-12
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2020-03-10T18:40:23+08:00">
+                2020-03-10
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/net/" itemprop="url" rel="index">
+                    <span itemprop="name">.net</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/net/webapi/" itemprop="url" rel="index">
+                    <span itemprop="name">webapi</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="一、Get请求"><a href="#一、Get请求" class="headerlink" title="一、Get请求"></a>一、Get请求</h4><h5 id="基础类型参数"><a href="#基础类型参数" class="headerlink" title="基础类型参数"></a>基础类型参数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[HttpGet]</span><br><span class="line">public string GetAllChargingData(int id, string name)</span><br><span class="line">&#123;</span><br><span class="line">    return &quot;ChargingData&quot; + id;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;get&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/GetAllChargingData&quot;,</span><br><span class="line">    data: &#123; id: 1, name: &quot;Jim&quot;, bir: &quot;1988-09-11&quot;&#125;,</span><br><span class="line">    success: function (data, status) &#123;</span><br><span class="line">        if (status == &quot;success&quot;) &#123;</span><br><span class="line">            $(&quot;#div_test&quot;).html(data);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h5 id="实体作为参数"><a href="#实体作为参数" class="headerlink" title="实体作为参数"></a>实体作为参数</h5><p>Get请求的时候可以在参数里面加上[FromUri]即可直接得到对象</p>
+ <a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">var postdata = &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;;</span><br><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;get&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/GetAllChargingData&quot;,</span><br><span class="line">    data: postdata,</span><br><span class="line">    success: function (data, status) &#123; &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">[HttpGet]</span><br><span class="line">public string GetAllChargingData([FromUri]TB_CHARGING obj)</span><br><span class="line">&#123;</span><br><span class="line">    return &quot;ChargingData&quot; + obj.ID;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果不想使用[FromUri]这些在参数里面加特性的这种“怪异”写法，也可以采用先序列化，再在后台反序列的方式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;get&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/GetByModel&quot;,</span><br><span class="line">    contentType: &quot;application/json&quot;,</span><br><span class="line">    data: &#123; strQuery: JSON.stringify(&#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;) &#125;,</span><br><span class="line">    success: function (data, status) &#123;</span><br><span class="line">        if (status == &quot;success&quot;) &#123;</span><br><span class="line">            $(&quot;#div_test&quot;).html(data);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">[HttpGet]</span><br><span class="line">public string GetByModel(string strQuery)</span><br><span class="line">&#123;</span><br><span class="line">    TB_CHARGING oData = Newtonsoft.Json.JsonConvert.DeserializeObject&lt;TB_CHARGING&gt;(strQuery);</span><br><span class="line">    return &quot;ChargingData&quot; + oData.ID;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="数组作为参数"><a href="#数组作为参数" class="headerlink" title="数组作为参数"></a>数组作为参数</h5><p>一般get请求不建议将数组作为参数，因为我们知道get请求传递参数的大小是有限制的，最大1024字节，数组里面内容较多时，将其作为参数传递可能会发生参数超限丢失的情况。</p>
+<h5 id="“怪异”的get请求-其实是RESETful风格API方法名"><a href="#“怪异”的get请求-其实是RESETful风格API方法名" class="headerlink" title="“怪异”的get请求(其实是RESETful风格API方法名)"></a>“怪异”的get请求(其实是RESETful风格API方法名)</h5><p>方法名以Get开头，WebApi会自动默认这个请求就是get请求，而如果你以其他名称开头而又不标注方法的请求方式，那么这个时候服务器虽然找到了这个方法，但是由于请求方式不确定，所以直接返回给你405——方法不被允许的错误。</p>
+<p>最后结论：所有的WebApi方法最好是加上请求的方式（[HttpGet]/[HttpPost]/[HttpPut]/[HttpDelete]），不要偷懒，这样既能防止类似的错误，也有利于方法的维护，别人一看就知道这个方法是什么请求。</p>
+<hr>
+<h4 id="二、Post请求"><a href="#二、Post请求" class="headerlink" title="二、Post请求"></a>二、Post请求</h4><h5 id="基础类型参数-1"><a href="#基础类型参数-1" class="headerlink" title="基础类型参数"></a>基础类型参数</h5><h6 id="传递多个基础类型的数据"><a href="#传递多个基础类型的数据" class="headerlink" title="传递多个基础类型的数据"></a>传递多个基础类型的数据</h6><p> post请求的基础类型的参数和get请求有点不一样，我们知道get请求的参数是通过url来传递的，而post请求则是通过http的请求体中传过来的，WebApi的post请求也需要从http的请求体里面去取参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;post&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/SaveData&quot;,</span><br><span class="line">    data: &#123; &quot;&quot;: &quot;Jim&quot; &#125;,</span><br><span class="line">    success: function (data, status) &#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">[HttpPost]</span><br><span class="line">public bool SaveData([FromBody]string NAME)</span><br><span class="line">&#123;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>FromBody和我们一般通过url取参数的机制则不同，它的机制是=value，没有key的概念，并且如果你写了key(比如你的ajax参数写的{NAME:”Jim”})，后台反而得到的NAME等于null。不信你可以试试。</p>
+<h6 id="传递多个基础类型的数据-1"><a href="#传递多个基础类型的数据-1" class="headerlink" title="传递多个基础类型的数据"></a>传递多个基础类型的数据</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;post&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/SaveData&quot;,</span><br><span class="line">    contentType: &apos;application/json&apos;,</span><br><span class="line">    data: JSON.stringify(&#123; NAME: &quot;Jim&quot;,DES:&quot;备注&quot; &#125;),</span><br><span class="line">    success: function (data, status) &#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">[HttpPost]</span><br><span class="line">public object SaveData(dynamic obj)</span><br><span class="line">&#123;</span><br><span class="line">    var strName = Convert.ToString(obj.NAME);</span><br><span class="line">    return strName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过dynamic动态类型能顺利得到多个参数，省掉了[FromBody]这个累赘，并且ajax参数的传递不用使用”无厘头”的{“”:”value”}这种写法，有没有一种小清新的感觉~~有一点需要注意的是这里在ajax的请求里面需要加上参数类型为Json，即 <strong>contentType: ‘application/json’</strong>, 这个属性。</p>
+<h5 id="实体作为参数-1"><a href="#实体作为参数-1" class="headerlink" title="实体作为参数"></a>实体作为参数</h5><h6 id="单个实体作为参数"><a href="#单个实体作为参数" class="headerlink" title="单个实体作为参数"></a>单个实体作为参数</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;post&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/SaveData&quot;,</span><br><span class="line">    data: &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;,</span><br><span class="line">    success: function (data, status) &#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line">[HttpPost]</span><br><span class="line">public bool SaveData(TB_CHARGING oData)</span><br><span class="line">&#123;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>原理解释：使用实体作为参数的时候，前端直接传递普通json，后台直接使用对应的类型去接收即可，不用FromBody。但是这里需要注意的一点就是，这里不能指定contentType为appplication/json，否则，参数无法传递到后台。</p>
+<p>post请求默认是将表单里面的数据的key/value形式发送到服务，而我们的服务器只需要有对应的key/value属性值的对象就可以接收到。而如果使用application/json，则表示将前端的数据以序列化过的json传递到后端，后端要把它变成实体对象，还需要一个反序列化的过程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">var postdata = &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;;</span><br><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;post&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/SaveData&quot;,</span><br><span class="line">    contentType: &apos;application/json&apos;,</span><br><span class="line">    data: JSON.stringify(postdata),</span><br><span class="line">    success: function (data, status) &#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">[HttpPost]</span><br><span class="line">public bool SaveData(TB_CHARGING lstCharging)</span><br><span class="line">&#123;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>如果指定了contentType为application/json，则必须要传递序列化过的对象；如果使用post请求的默认参数类型，则前端直接传递json类型的对象即可。</strong></p>
+<h6 id="实体和基础类型一起作为参数传递"><a href="#实体和基础类型一起作为参数传递" class="headerlink" title="实体和基础类型一起作为参数传递"></a>实体和基础类型一起作为参数传递</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">var postdata = &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;;</span><br><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;post&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/SaveData&quot;,</span><br><span class="line">    contentType: &apos;application/json&apos;,</span><br><span class="line">    data: JSON.stringify(&#123; NAME:&quot;Lilei&quot;, Charging:postdata &#125;),</span><br><span class="line">    success: function (data, status) &#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">[HttpPost]</span><br><span class="line">public object SaveData(dynamic obj)</span><br><span class="line">&#123;</span><br><span class="line">    var strName = Convert.ToString(obj.NAME);</span><br><span class="line">    var oCharging = Newtonsoft.Json.JsonConvert.DeserializeObject&lt;TB_CHARGING&gt;(Convert.ToString(obj.Charging));</span><br><span class="line">    return strName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="数组作为参数-1"><a href="#数组作为参数-1" class="headerlink" title="数组作为参数"></a>数组作为参数</h6><p><strong>（1）基础类型数组</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">var arr = [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;];</span><br><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;post&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/SaveData&quot;,</span><br><span class="line">    contentType: &apos;application/json&apos;,</span><br><span class="line">    data: JSON.stringify(arr),</span><br><span class="line">    success: function (data, status) &#123; &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">--</span><br><span class="line"></span><br><span class="line">[HttpPost]</span><br><span class="line">public bool SaveData(string[] ids)</span><br><span class="line">&#123;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>（2）实体集合</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">var arr = [</span><br><span class="line">    &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;,</span><br><span class="line">    &#123; ID: &quot;2&quot;, NAME: &quot;Lilei&quot;, CREATETIME: &quot;1990-12-11&quot; &#125;,</span><br><span class="line">    &#123; ID: &quot;3&quot;, NAME: &quot;Lucy&quot;, CREATETIME: &quot;1986-01-10&quot; &#125;</span><br><span class="line">];</span><br><span class="line">$.ajax(&#123;</span><br><span class="line">    type: &quot;post&quot;,</span><br><span class="line">    url: &quot;http://localhost:27221/api/Charging/SaveData&quot;,</span><br><span class="line">    contentType: &apos;application/json&apos;,</span><br><span class="line">    data: JSON.stringify(arr),</span><br><span class="line">    success: function (data, status) &#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">[HttpPost]</span><br><span class="line">public bool SaveData(List&lt;TB_CHARGING&gt; lstCharging)</span><br><span class="line">&#123;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="后台发送请求参数的传递"><a href="#后台发送请求参数的传递" class="headerlink" title="后台发送请求参数的传递"></a>后台发送请求参数的传递</h6><p>如果我们通过后台去发送请求是否也是可行的呢？我们以实体对象作为参数来传递写写代码试一把。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public void TestReques()</span><br><span class="line">&#123;</span><br><span class="line">　　　　 //请求路径</span><br><span class="line">    string url = &quot;http://localhost:27221/api/Charging/SaveData&quot;;</span><br><span class="line"></span><br><span class="line">    //定义request并设置request的路径</span><br><span class="line">    WebRequest request = WebRequest.Create(url);</span><br><span class="line">    request.Method = &quot;post&quot;;</span><br><span class="line"></span><br><span class="line">    //初始化request参数</span><br><span class="line">    string postData = &quot;&#123; ID: \&quot;1\&quot;, NAME: \&quot;Jim\&quot;, CREATETIME: \&quot;1988-09-11\&quot; &#125;&quot;;</span><br><span class="line"></span><br><span class="line">    //设置参数的编码格式，解决中文乱码</span><br><span class="line">    byte[] byteArray = Encoding.UTF8.GetBytes(postData);</span><br><span class="line"></span><br><span class="line">    //设置request的MIME类型及内容长度</span><br><span class="line">    request.ContentType = &quot;application/json&quot;;</span><br><span class="line">    request.ContentLength = byteArray.Length;</span><br><span class="line"></span><br><span class="line">    //打开request字符流</span><br><span class="line">    Stream dataStream = request.GetRequestStream();</span><br><span class="line">    dataStream.Write(byteArray, 0, byteArray.Length);</span><br><span class="line">    dataStream.Close();</span><br><span class="line"></span><br><span class="line">    //定义response为前面的request响应</span><br><span class="line">    WebResponse response = request.GetResponse();</span><br><span class="line"></span><br><span class="line">    //获取相应的状态代码</span><br><span class="line">    Console.WriteLine(((HttpWebResponse)response).StatusDescription);</span><br><span class="line"></span><br><span class="line">    //定义response字符流</span><br><span class="line">    dataStream = response.GetResponseStream();</span><br><span class="line">    StreamReader reader = new StreamReader(dataStream);</span><br><span class="line">    string responseFromServer = reader.ReadToEnd();//读取所有</span><br><span class="line">    Console.WriteLine(responseFromServer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>本文出处：博客园 懒得安分 <a href="http://www.cnblogs.com/landeanfen/" target="_blank" rel="noopener"> http://www.cnblogs.com/landeanfen/</a></p>
+</blockquote>
+<p>本博客只对原文进行了摘要与抄录，若有侵权，请告知！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/assets/images/wechatpay.jpeg" alt="sharkyzh 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/net/" rel="tag"># .net</a>
+          
+            <a href="/tags/webapi/" rel="tag"># webapi</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/c295aa6a.html" rel="next" title="微信内调试小工具vConsole">
+                <i class="fa fa-chevron-left"></i> 微信内调试小工具vConsole
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/8f3e9247.html" rel="prev" title="ngrok配置https">
+                ngrok配置https <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/assets/images/avatar.png" alt="sharkyzh">
+            
+              <p class="site-author-name" itemprop="name">sharkyzh</p>
+              <p class="site-description motion-element" itemprop="description">一个菜鸟程序员，不专心自己的老本行，天天不知道想些啥！分享好玩有趣的东西，各类东西都会有，杂乱向！</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/sharkyzh" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:sharkyzh@gmail.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://weibo.com/sharkyzh" target="_blank" title="微博">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>微博</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.zhihu.com/people/sharkyzh" target="_blank" title="知乎">
+                    
+                      <i class="fa fa-fw fa-globe"></i>知乎</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、Get请求"><span class="nav-number">1.</span> <span class="nav-text">一、Get请求</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#基础类型参数"><span class="nav-number">1.1.</span> <span class="nav-text">基础类型参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实体作为参数"><span class="nav-number">1.2.</span> <span class="nav-text">实体作为参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数组作为参数"><span class="nav-number">1.3.</span> <span class="nav-text">数组作为参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#“怪异”的get请求-其实是RESETful风格API方法名"><span class="nav-number">1.4.</span> <span class="nav-text">“怪异”的get请求(其实是RESETful风格API方法名)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、Post请求"><span class="nav-number">2.</span> <span class="nav-text">二、Post请求</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#基础类型参数-1"><span class="nav-number">2.1.</span> <span class="nav-text">基础类型参数</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#传递多个基础类型的数据"><span class="nav-number">2.1.1.</span> <span class="nav-text">传递多个基础类型的数据</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#传递多个基础类型的数据-1"><span class="nav-number">2.1.2.</span> <span class="nav-text">传递多个基础类型的数据</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实体作为参数-1"><span class="nav-number">2.2.</span> <span class="nav-text">实体作为参数</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#单个实体作为参数"><span class="nav-number">2.2.1.</span> <span class="nav-text">单个实体作为参数</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#实体和基础类型一起作为参数传递"><span class="nav-number">2.2.2.</span> <span class="nav-text">实体和基础类型一起作为参数传递</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#数组作为参数-1"><span class="nav-number">2.2.3.</span> <span class="nav-text">数组作为参数</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#后台发送请求参数的传递"><span class="nav-number">2.2.4.</span> <span class="nav-text">后台发送请求参数的传递</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sharkyzh</span>
+
+  
+</div>
+
+<div class="powered-by"><a class="theme-link" target="_blank" href="http://www.miitbeian.gov.cn">豫ICP备13002966号</a></div>
+
+<span class="post-meta-divider">|</span>
+
+
+
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

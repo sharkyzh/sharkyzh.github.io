@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[centos7设置supervisor开机启动]]></title>
+    <url>%2Fpost%2Fae315e0f.html</url>
+    <content type="text"><![CDATA[新建文件supervisord.service12345678910111213141516#supervisord.service[Unit] Description=Supervisor daemon[Service] Type=forking ExecStart=/usr/bin/supervisord -c /etc/supervisord.conf ExecStop=/usr/bin/supervisorctl shutdown ExecReload=/usr/bin/supervisorctl reload KillMode=process Restart=on-failure RestartSec=42s[Install] WantedBy=multi-user.target 将文件拷贝到/usr/lib/systemd/system/ 1cp supervisord.service /usr/lib/systemd/system/ 启动服务 1systemctl enable supervisord 验证一下是否为开机启动 1systemctl is-enabled supervisord]]></content>
+      <categories>
+        <category>linux</category>
+        <category>centos</category>
+      </categories>
+      <tags>
+        <tag>centos</tag>
+        <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[ngrok配置supervisor进程守护]]></title>
+    <url>%2Fpost%2F7ded41a5.html</url>
+    <content type="text"><![CDATA[安装supervisor可以参考我的博客里的安装教程 传送门 这里就不细说了 配置文件1234567891011121314[program:ngrokd]command = /usr/ngrok/bin/ngrokd -domain=&quot;tunnel.51ngrok.cn&quot; -httpAddr=&quot;:8080&quot; -httpsAddr=&quot;:8081&quot; -tlsKey=&quot;/usr/ngrok/bin/51ngrok.key&quot; -tlsCrt=&quot;/usr/ngrok/bin/51ngrok.crt&quot;directory = /usr/ngrok/binprocess_name = %(program_name)s_%(process_num)snumprocs = 1 ;注意这里只能为1autostart = true ; 在 supervisord 启动的时候也自动启动startsecs = 5 ; 启动 5 秒后没有异常退出，就当作已经正常启动了autorestart = true ; 程序异常退出后自动重启startretries = 3 ; 启动失败自动重试次数，默认是 3user = root ; 用哪个用户启动stdout_logfile=/logs/ngroklog/ngrok.out.logstdout_logfile_maxbytes = 10MBstderr_logfile=/logs/ngroklog/ngrok.err.logstderr_logfile_maxbytes = 10MB 碰到的坑 1、指定证书文件启动时，报错提示 51ngrok.key路径找不到路径 解决办法：证书用完整路径]]></content>
+      <categories>
+        <category>ngrok</category>
+      </categories>
+      <tags>
+        <tag>ngrok</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Linux新增磁盘、分区、格式化和自动挂载]]></title>
+    <url>%2Fpost%2Fbf5cf99.html</url>
+    <content type="text"><![CDATA[Linux新增磁盘、分区、格式化和自动挂载系统环境：CentOS7 64位 mini版场景：在虚拟机中添加一块40G的SCSI硬盘，分成一个扩展分区，格式化为ext3文件格式，挂载到/opt目录上 1. 查看磁盘信息1lsblk 2. 分区1fdisk /dev/sdb 执行上述命令后，根据提示对磁盘进行分区。注意：下边操作提示的红色字体表示输入的指令 1&gt; 命令(输入 m 获取帮助)： m 分区命令列表 2&gt; 添加新的分区 1命令(输入 m 获取帮助)：n 3&gt; 选择分区类型 12345Partition type: p primary (0 primary, 0 extended, 4 free) e extended Select (default p): e 输入e表示创建扩展分区 4&gt; 分区数量 1分区号 (1-4，默认 1)：1 5&gt; 设置扇区 起始 扇区 (2048-83886079，默认为 2048)：回车Last 扇区, +扇区 or +size{K,M,G} (2048-83886079，默认为 83886079)：回车 6&gt; 保存 1命令(输入 m 获取帮助)：w 完整操作流程如下图所示：操作流程 3. 格式化分区1mkfs -t ext3 /dev/sdb 分区最后提示：Writing superblocks and filesystem accounting information: 回车 4.挂载磁盘1mount /dev/sdb /opt 这种方式只临时挂载到/opt目录下，下次开机时不会自动挂载注意：挂载后/opt目录下的文件会被临时删除，注意备份 5.开机自动挂载编辑/etc/fstab文件，在文件中添加如下内容： 1/dev/sdb /opt ext3 defaults 1 1 下回系统重启之后就会自动将/dev/sdb磁盘挂载到/opt目录下了。可以通过mount命令查看文件系统的挂载情况，如下图所示：设备挂载情况]]></content>
+      <categories>
+        <category>centos</category>
+      </categories>
+      <tags>
+        <tag>centos</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Centos7下Erlang20.2安装部署]]></title>
+    <url>%2Fpost%2F3909ad56.html</url>
+    <content type="text"><![CDATA[前言本篇文章适用范围？ 12Erlang 17.0+CentOS 7 环境信息? 12CentOS 7.XErlang 20.2 编译安装安装Erlang编译安装必要依赖 12#安装必要依赖sudo yum install -y gcc gcc-c++ glibc-devel make ncurses-devel openssl-devel autoconf java-1.8.0-openjdk-devel git 下载Erlang源码下载地址：https://www.erlang.org/downloads 1234#进入下载目录cd /home/download#下载wget http://erlang.org/download/otp_src_20.2.tar.gz 解压 1tar -zvxf otp_src_20.2.tar.gz 编译&amp;安装 12345#进入根目录cd otp_src_20.2.tar.gz#编译&amp;安装./otp_build autoconf./configure &amp;&amp; make &amp;&amp; sudo make install 验证 12#进入erlang命令行表示成功erl YUM安装创建Yum源 12#创建yum源sudo vi /etc/yum.repos.d/rabbitmq-erlang.repo 12345678910111213#文件内容[rabbitmq-erlang]name=rabbitmq-erlangbaseurl=https://dl.bintray.com/rabbitmq/rpm/erlang/20/el/7gpgcheck=1gpgkey=https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.ascrepo_gpgcheck=0enabled=1安装sudo yum install -y erlang验证#进入erlang命令行表示成功erl 备注 https://github.com/erlang/otp/blob/maint/HOWTO/INSTALL.md https://github.com/rabbitmq/erlang-rpm https://zfanw.com/blog/install-erlang-on-centos-7.html]]></content>
+      <categories>
+        <category>centos</category>
+      </categories>
+      <tags>
+        <tag>centos</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Centos7安装与配置supervisor]]></title>
+    <url>%2Fpost%2Fb8744e3e.html</url>
+    <content type="text"><![CDATA[安装1234yum install python-setuptoolseasy_install supervisor#或者是pip install supervisor supervisor安装完成后会生成三个执行程序：supervisortd、supervisorctl、echo_supervisord_conf，分别是supervisor的守护进程服务（用于接收进程管理命令）、客户端（用于和守护进程通信，发送管理进程的指令）、生成初始配置文件程序。 配置输出supervisor配置，可以使用echo_supervisord_conf,我们将其重定向到文件中，然后就可以修改其配置项了。运行supervisord服务的时候，需要指定supervisor配置文件，如果没有显示指定，默认在以下目录查找： 1234567###$CWD表示运行supervisord程序的目录。$CWD/supervisord.conf $CWD/etc/supervisord.conf/etc/supervisord.conf/etc/supervisor/supervisord.conf (since Supervisor 3.3.0)../etc/supervisord.conf (Relative to the executable)../supervisord.conf (Relative to the executable) 我们将其重定向到/etc/目录下面 12mkdir /etc/supervisorecho_supervisord_conf &gt; /etc/supervisor/supervisord.conf 1、配置文件参数说明supervisor的配置参数较多，下面介绍一下常用的参数配置，详细的配置及说明，请参考官方文档介绍。 123456789101112131415161718192021222324252627282930313233343536373839404142434445注：分号（;）开头的配置表示注释[unix_http_server]file=/tmp/supervisor.sock ;UNIX socket 文件，supervisorctl 会使用;chmod=0700 ;socket文件的mode，默认是0700;chown=nobody:nogroup ;socket文件的owner，格式：uid:gid;[inet_http_server] ;HTTP服务器，提供web管理界面;port=127.0.0.1:9001 ;Web管理后台运行的IP和端口，如果开放到公网，需要注意安全性;username=user ;登录管理后台的用户名;password=123 ;登录管理后台的密码[supervisord]logfile=/tmp/supervisord.log ;日志文件，默认是 $CWD/supervisord.loglogfile_maxbytes=50MB ;日志文件大小，超出会rotate，默认 50MB，如果设成0，表示不限制大小logfile_backups=10 ;日志文件保留备份数量默认10，设为0表示不备份loglevel=info ;日志级别，默认info，其它: debug,warn,tracepidfile=/tmp/supervisord.pid ;pid 文件nodaemon=false ;是否在前台启动，默认是false，即以 daemon 的方式启动minfds=1024 ;可以打开的文件描述符的最小值，默认 1024minprocs=200 ;可以打开的进程数的最小值，默认 200[supervisorctl]serverurl=unix:///tmp/supervisor.sock ;通过UNIX socket连接supervisord，路径与unix_http_server部分的file一致;serverurl=http://127.0.0.1:9001 ; 通过HTTP的方式连接supervisord; [program:xx]是被管理的进程配置参数，xx是进程的名称[program:xx]command=/opt/apache-tomcat-8.0.35/bin/catalina.sh run ; 程序启动命令autostart=true ; 在supervisord启动的时候也自动启动startsecs=10 ; 启动10秒后没有异常退出，就表示进程正常启动了，默认为1秒autorestart=true ; 程序退出后自动重启,可选值：[unexpected,true,false]，默认为unexpected，表示进程意外杀死后才重启startretries=3 ; 启动失败自动重试次数，默认是3user=tomcat ; 用哪个用户启动进程，默认是rootpriority=999 ; 进程启动优先级，默认999，值小的优先启动redirect_stderr=true ; 把stderr重定向到stdout，默认falsestdout_logfile_maxbytes=20MB ; stdout 日志文件大小，默认50MBstdout_logfile_backups = 20 ; stdout 日志文件备份数，默认是10; stdout 日志文件，需要注意当指定目录不存在时无法正常启动，所以需要手动创建目录（supervisord 会自动创建日志文件）stdout_logfile=/opt/apache-tomcat-8.0.35/logs/catalina.outstopasgroup=false ;默认为false,进程被杀死时，是否向这个进程组发送stop信号，包括子进程killasgroup=false ;默认为false，向进程组发送kill信号，包括子进程;包含其它配置文件,一般情况下，我们会新建一个目录来专门存放服务的配置文件，然后在此文件中将其include包含进来。[include]files = relative/directory/*.ini ;可以指定一个或多个以.ini结束的配置文件 2、配置管理进程进程管理配置参数，不建议全都写在supervisord.conf文件中，应该每个进程写一个配置文件放在include指定的目录下包含进supervisord.conf文件中。（1）创建/etc/supervisor/config.d目录，用于存放进程管理的配置文件（2）修改/etc/supervisor/supervisord.conf中的include参数，将/etc/supervisor/conf.d目录添加到include中 12[include]files = /etc/supervisor/config.d/*.ini 3、服务配置模板 ###项目名称（program_name是唯一不可重复的，用来唯一标识一个服务） 123456789[program:program_name]###命令要能运行在前台，如果命令加入&amp;符号，例如&quot;ping 127.0.0.1 &amp;&quot;命令就不能被supervisor来进行监控。command=php /home/wwwroot/site.webshowu.com/artisan queue:work redis --sleep=3 --tries=3 --daemonautostart=trueautorestart=trueuser=rootnumprocs=3redirect_stderr=truestdout_logfile=/home/wwwlogs/worker1.log 这些配置项的含义已经在上面的配置文件说明中详细说明。下面是配置dotnet api进程的一个例子： 1234567891011[program:webapi]command=dotnet zh_Api.dlldirectory=/www/wwwroot/api.sharkyzh.funenvironment=ASPNETCORE__ENVIRONMENT=Production #环境变量user=rootstopsignal=INTautostart=trueautorestart=truestartsecs=3stderr_logfile=/wwwlogs/apilogs/api.err.logstdout_logfile=/wwwlogs/apilogs/api.out.log 4、web管理配置说明编辑配置文件/etc/supervisor/supervisord.conf,在最后面加如下配置： 1234[inet_http_server] ; inet (TCP) server disabled by defaultport=0.0.0.0:9001 ; (ip_address:port specifier, *:port for all iface)username=user ; 用户名 (default is no username (open server))password=123 ; 密码 (default is no password (open server)) 此时访问本机的9001端口，输入用户名密码即可进入此管理页面 三、启动与关闭supervisor和其管理的项目1、启动supervisor 12##-c制定让其读取的配置文件supervisord -c /etc/supervisor/supervisord.conf 2、关闭supervisor 1supervisorctl shutdown 3、重新载入supervisor，在这里相当于重启supervisor服务，里面的服务也会跟着重新启动 1supervisorctl reload 4、添加/删除 要管理服务（1）添加或删除配置文件（2）更新 1supervisorctl update 5、管理supervisor下的服务 1234567891011###启动服务supervisorctl start allsupervisorctl start service_name###关闭服务supervisorctl stop allsupervisorctl stop service_name###查看状态supervisorctl status [service_name]###重新启动所有服务或者是某个服务supervisorctl restart allsupervisorctl restart service_name]]></content>
+      <categories>
+        <category>centos</category>
+      </categories>
+      <tags>
+        <tag>centos</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[MVC路由调试工具-RouteDebugger]]></title>
+    <url>%2Fpost%2F2e35e381.html</url>
+    <content type="text"><![CDATA[1.获取方式第一种方法：在程序包控制台中执行命令: Install-Package routedebugger 安装成功后Web.config文件中会自动加入行 &lt;add key=&quot;RouteDebugger:Enabled&quot; value=&quot;true&quot; /&gt; 第二种方法：下载之后，解压之后得到RouteDebugger.dll，引用到web项目中。手动在web.config中加入 &lt;add key=&quot;RouteDebugger:Enabled&quot; value=&quot;true&quot; /&gt; 2.使用1.对于.NET3.5和MVC3之前的项目，如果要使用RouteDebugger，还需要在Application_Start中注册。protected void Application_Start(object sender, EventArgs e) { RegisterRoutes(RouteTable.Routes); RouteDebug.RouteDebugger.RewriteRoutesForTesting(RouteTable.Routes); } 如果是MVC3、MVC4、MVC5，则无需在Application_Start中注册。 2.做完上述工作后，访问页面即可以跟踪到路由。3.禁用/启用在web.config中操作按照下面的配置节进行修改 &lt;!--禁用--&gt; &lt;add key=&quot;RouteDebugger:Enabled&quot; value=&quot;false&quot; /&gt; &lt;!--启用--&gt; &lt;add key=&quot;RouteDebugger:Enabled&quot; value=&quot;true&quot; /&gt; 4.使用效果图：]]></content>
+      <categories>
+        <category>.net</category>
+        <category>mvc</category>
+      </categories>
+      <tags>
+        <tag>.net</tag>
+        <tag>mvc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[EF CodeFirst使用介绍]]></title>
+    <url>%2Fpost%2Fc566f6d0.html</url>
+    <content type="text"><![CDATA[EF简单DataAnnotations实体配置 数据库创建表T_Persons，有Id（主键，自动增长）、Name、CreateTime字段 创建Person类 1234567[Table(&quot;T_Persons&quot;)]//因为类名和表名不一样，所以要使用Table标注public class Person&#123; public long Id&#123;get;set;&#125; public string Name&#123;get;set;&#125; public DateTime CreteTime&#123;get;set;&#125;&#125; 因为EF约定主键名是Id，所以不用再特殊指定Id是主键，如果非要指定就使用[key]。因为字段名字和属性名字一致，所以不用再特殊指定属性和字段名的对应关系，如果需要特殊指定，则要用[Column(“Name”)]。（*）必填字段标注[Required]、字段长度[MaxLength(5)]、可空字段用int?、如果字段在数据库有默认值，则要在属性上标注[DatabaseGenerated]。注意实体类都要写成public，负责后面可能会有麻烦。 创建DbContext类（模型类、实体类） 123456789public class MyDbContext:DbContext&#123; public MyDbContext():base(&quot;name=conn1&quot;) &#123; &#125; public DbSet&lt;Person&gt; Persons&#123;get;set;&#125;&#125; 未完待续]]></content>
+      <categories>
+        <category>.net</category>
+        <category>mvc</category>
+      </categories>
+      <tags>
+        <tag>.net</tag>
+        <tag>mvc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[RabbitMQ简单使用教程]]></title>
+    <url>%2Fpost%2Fe62ed69c.html</url>
+    <content type="text"><![CDATA[最简单的使用1、 引用 rabbitMQ.Client1Install-Package RabbitMQ.Client 2、 创建生产者1234567891011121314151617181920212223242526272829//创建连接工厂ConnectionFactory factory = new ConnectionFactory&#123; UserName = &quot;mqAdmin&quot;,//用户名 Password = &quot;mqAdmin&quot;,//密码 HostName = &quot;192.168.1.103&quot;//rabbitmq ip&#125;;//创建连接var connection = factory.CreateConnection();//创建通道var channel = connection.CreateModel();//声明一个队列channel.QueueDeclare(&quot;hello&quot;, false, false, false, null);Console.WriteLine(&quot;\nRabbitMQ连接成功，请输入消息，输入exit退出！&quot;);string input;do&#123; input = Console.ReadLine(); var sendBytes = Encoding.UTF8.GetBytes(input); //发布消息 channel.BasicPublish(&quot;&quot;, &quot;hello&quot;, null, sendBytes);&#125; while (input.Trim().ToLower()!=&quot;exit&quot;);channel.Close();connection.Close(); 3、 创建生产者123456789101112131415161718192021222324252627282930//创建连接工厂ConnectionFactory factory = new ConnectionFactory&#123; UserName = &quot;admin&quot;,//用户名 Password = &quot;admin&quot;,//密码 HostName = &quot;192.168.157.130&quot;//rabbitmq ip&#125;;//创建连接var connection = factory.CreateConnection();//创建通道var channel = connection.CreateModel();//事件基本消费者EventingBasicConsumer consumer = new EventingBasicConsumer(channel);//接收到消息事件consumer.Received += (ch, ea) =&gt;&#123; var message = Encoding.UTF8.GetString(ea.Body); Console.WriteLine($&quot;收到消息： &#123;message&#125;&quot;); //确认该消息已被消费 channel.BasicAck(ea.DeliveryTag, false);&#125;;//启动消费者 设置为手动应答消息channel.BasicConsume(&quot;hello&quot;, false, consumer);Console.WriteLine(&quot;消费者已启动&quot;);Console.ReadKey();channel.Dispose();connection.Close(); RabbitMQ消费失败的处理RabbitMQ采用消息应答机制，即消费者收到一个消息之后，需要发送一个应答，然后RabbitMQ才会将这个消息从队列中删除，如果消费者在消费过程中出现异常，断开连接切没有发送应答，那么RabbitMQ会将这个消息重新投递。 12345678910111213//接收到消息事件consumer.Received += (ch, ea) =&gt;&#123; var message = Encoding.UTF8.GetString(ea.Body); Console.WriteLine($&quot;收到消息： &#123;message&#125;&quot;); Console.WriteLine($&quot;收到该消息[&#123;ea.DeliveryTag&#125;] 延迟10s发送回执&quot;); Thread.Sleep(10000); //确认该消息已被消费 channel.BasicAck(ea.DeliveryTag, false); Console.WriteLine($&quot;已发送回执[&#123;ea.DeliveryTag&#125;]&quot;);&#125;; 使用RabbitMQ的Exchange前面我们可以看到生产者将消息投递到Queue中，实际上这在RabbitMQ中这种事情永远都不会发生。实际的情况是，生产者将消息发送到Exchange（交换器），由Exchange将消息路由到一个或多个Queue中（或者丢弃） AMQP协议中的核心思想就是生产者和消费者隔离，生产者从不直接将消息发送给队列。生产者通常不知道是否一个消息会被发送到队列中，只是将消息发送到一个交换机。先由Exchange来接收，然后Exchange按照特定的策略转发到Queue进行存储。同理，消费者也是如此。Exchange 就类似于一个交换机，转发各个消息分发到相应的队列中。 RabbitMQ提供了四种Exchange模式：direct,fanout,topic,header 。但是 header模式在实际使用中较少，所以这里只介绍前三种模式。 Exchange不是消费者关心的，所以消费者的代码完全不用变，用上面的消费者就行了。 Direct Exchange所有发送到Direct Exchange的消息被转发到具有指定RouteKey的Queue。 Direct模式,可以使用rabbitMQ自带的Exchange：default Exchange 。所以不需要将Exchange进行任何绑定(binding)操作 。消息传递时，RouteKey必须完全匹配，才会被队列接收，否则该消息会被抛弃。 12345678910111213//创建连接var connection = factory.CreateConnection();//创建通道var channel = connection.CreateModel();//定义一个Direct类型交换机channel.ExchangeDeclare(exchangeName, ExchangeType.Direct, false, false, null);//定义一个队列channel.QueueDeclare(queueName, false, false, false, null);//将队列绑定到交换机channel.QueueBind(queueName, exchangeName, routeKey, null); Fanout Exchange所有发送到Fanout Exchange的消息都会被转发到与该Exchange 绑定(Binding)的所有Queue上。 Fanout Exchange 不需要处理RouteKey 。只需要简单的将队列绑定到exchange 上。这样发送到exchange的消息都会被转发到与该交换机绑定的所有队列上。类似子网广播，每台子网内的主机都获得了一份复制的消息。 所以，Fanout Exchange 转发消息是最快的。 为了演示效果，定义了两个队列，分别为hello1，hello2，每个队列都拥有一个消费者。 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868788static void Main(string[] args)&#123; string exchangeName = &quot;TestFanoutChange&quot;; string queueName1 = &quot;hello1&quot;; string queueName2 = &quot;hello2&quot;; string routeKey = &quot;&quot;; //创建连接工厂 ConnectionFactory factory = new ConnectionFactory &#123; UserName = &quot;admin&quot;,//用户名 Password = &quot;admin&quot;,//密码 HostName = &quot;192.168.157.130&quot;//rabbitmq ip &#125;; //创建连接 var connection = factory.CreateConnection(); //创建通道 var channel = connection.CreateModel(); //定义一个Direct类型交换机 channel.ExchangeDeclare(exchangeName, ExchangeType.Fanout, false, false, null); //定义队列1 channel.QueueDeclare(queueName1, false, false, false, null); //定义队列2 channel.QueueDeclare(queueName2, false, false, false, null); //将队列绑定到交换机 channel.QueueBind(queueName1, exchangeName, routeKey, null); channel.QueueBind(queueName2, exchangeName, routeKey, null); //生成两个队列的消费者 ConsumerGenerator(queueName1); ConsumerGenerator(queueName2); Console.WriteLine($&quot;\nRabbitMQ连接成功，\n\n请输入消息，输入exit退出！&quot;); string input; do &#123; input = Console.ReadLine(); var sendBytes = Encoding.UTF8.GetBytes(input); //发布消息 channel.BasicPublish(exchangeName, routeKey, null, sendBytes); &#125; while (input.Trim().ToLower() != &quot;exit&quot;); channel.Close(); connection.Close();&#125;/// &lt;summary&gt;/// 根据队列名称生成消费者/// &lt;/summary&gt;/// &lt;param name=&quot;queueName&quot;&gt;&lt;/param&gt;static void ConsumerGenerator(string queueName)&#123; //创建连接工厂 ConnectionFactory factory = new ConnectionFactory &#123; UserName = &quot;admin&quot;,//用户名 Password = &quot;admin&quot;,//密码 HostName = &quot;192.168.157.130&quot;//rabbitmq ip &#125;; //创建连接 var connection = factory.CreateConnection(); //创建通道 var channel = connection.CreateModel(); //事件基本消费者 EventingBasicConsumer consumer = new EventingBasicConsumer(channel); //接收到消息事件 consumer.Received += (ch, ea) =&gt; &#123; var message = Encoding.UTF8.GetString(ea.Body); Console.WriteLine($&quot;Queue:&#123;queueName&#125;收到消息： &#123;message&#125;&quot;); //确认该消息已被消费 channel.BasicAck(ea.DeliveryTag, false); &#125;; //启动消费者 设置为手动应答消息 channel.BasicConsume(queueName, false, consumer); Console.WriteLine($&quot;Queue:&#123;queueName&#125;，消费者已启动&quot;);&#125; Topic Exchange123456789101112131415161718192021222324252627282930313233343536373839404142434445464748所有发送到Topic Exchange的消息被转发到能和Topic匹配的Queue上，Exchange 将路由进行模糊匹配。可以使用通配符进行模糊匹配，符号“#”匹配一个或多个词，符号“”匹配不多不少一个词。因此“XiaoChen.#”能够匹配到“XiaoChen.pets.cat”，但是“XiaoChen.” 只会匹配到“XiaoChen.money”。所以，Topic Exchange 使用非常灵活。string exchangeName = &quot;TestTopicChange&quot;;string queueName = &quot;hello&quot;;string routeKey = &quot;TestRouteKey.*&quot;;//创建连接工厂ConnectionFactory factory = new ConnectionFactory&#123; UserName = &quot;admin&quot;,//用户名 Password = &quot;admin&quot;,//密码 HostName = &quot;192.168.157.130&quot;//rabbitmq ip&#125;;//创建连接var connection = factory.CreateConnection();//创建通道var channel = connection.CreateModel();//定义一个Direct类型交换机channel.ExchangeDeclare(exchangeName, ExchangeType.Topic, false, false, null);//定义队列1channel.QueueDeclare(queueName, false, false, false, null);//将队列绑定到交换机channel.QueueBind(queueName, exchangeName, routeKey, null);Console.WriteLine($&quot;\nRabbitMQ连接成功，\n\n请输入消息，输入exit退出！&quot;);string input;do&#123; input = Console.ReadLine(); var sendBytes = Encoding.UTF8.GetBytes(input); //发布消息 channel.BasicPublish(exchangeName, &quot;TestRouteKey.one&quot;, null, sendBytes);&#125; while (input.Trim().ToLower() != &quot;exit&quot;);channel.Close();connection.Close(); 本文转自：http://www.cnblogs.com/stulzq/p/7551819.html本人进行了部分精简。若有侵权，请告知！]]></content>
+      <categories>
+        <category>RabbitMQ</category>
+      </categories>
+      <tags>
+        <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[RabbitMQ常用命令]]></title>
+    <url>%2Fpost%2Fb7d85c7f.html</url>
+    <content type="text"><![CDATA[启用Web控制台1rabbitmq-plugins enable rabbitmq_management 开启服务1systemctl start rabbitmq-server.service 停止服务1systemctl stop rabbitmq-server.service 查看服务状态1systemctl status rabbitmq-server.service 查看RabbitMQ状态1rabbitmqctl status 添加用户赋予管理员权限123rabbitmqctl add_user mqAdmin 163.comrabbitmqctl set_user_tags mqAdmin administratorrabbitmqctl set_permissions -p / mqAdmin “.“ “.“ “.*” 查看用户列表1rabbitmqctl list_users 删除用户1rabbitmqctl delete_user username 修改用户密码1rabbitmqctl oldPassword Username newPassword 访问Web控制台http://xxx:15672/注意配置防火墙，默认用户名密码都是guest，若新建用户一定要记得配置权限。 1rabbitmqctl set_permissions Username ConfP WriteP ReadP]]></content>
+      <categories>
+        <category>RabbitMQ</category>
+      </categories>
+      <tags>
+        <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[RabbitMQ快速安装配置指南]]></title>
+    <url>%2Fpost%2F3042f478.html</url>
+    <content type="text"><![CDATA[总结一下在CentOS7环境下的安装配置过程,详细安装指南请查看官网原文 一、安装RabbitMQ server 安装epel源 1yum install -y epel-release 安装Erlang 1yum install -y erlang 安装RabbitMQ server，请自行到官网下载rpm包 1yum install -y rabbitmq-server-3.6.12-1.el7.noarch.rpm 二、启动RabbitMQ server 设置RabbitMQ以后台方式运行 1systemctl enable rabbitmq-server.service 启动 1systemctl start rabbitmq-server.service 查询状态 1systemctl status rabbitmq-server.service 三、 调整系统限制调整操作系统允许打开文件的最大数量 vi工具打开，没有这文件就创建一个 1vi /etc/systemd/system/rabbitmq-server.service.d/limits.conf 文件添加内容： 12[Service]LimitNOFILE=300000 hard limit方式设置每个用户允许打开文件的最大数量： vi工具打开，没有这文件就创建一个 1vi /etc/security/limits.conf 行末添加： 1234* soft nofile 65536* hard nofile 65536* soft nproc 65536* hard nproc 65536 启用pam_limits.so模块： 编辑文件 1vi /etc/pam.d/login 文件末尾添加内容： 1session required pam_limits.so 这是告诉Linux在用户完成系统登录后，应该调用pam_limits.so模块设置系统对该用户可使用的各种资源数量的最大限制(包括用户可打开的最大文件数限制)注意： 每个用户允许打开文件的最大数量 &lt; 操作系统允许打开文件的最大数量 1soft limit &lt; hard limit 四、访问管理后台RabbitMQ默认访问帐号是：guest，密码也是guest。访问地址是：http://xxx.xxx.xxx.xxx:15672。但是知道这些还不够。因为guest帐号默认只能从RabbitMQ服务端的本机访问，因此需要设置一下。 需要找到RabbitMQ的日志文件：/var/log/rabbitmq/rabbit@beta-cat.log，beta-cat是我的linux主机名。查看文件会找到配置文件存放信息： 1234=INFO REPORT==== 1-Oct-2017::23:32:45 ===node : rabbit@beta-cathome dir : /var/lib/rabbitmqconfig file(s) : /etc/rabbitmq/rabbitmq.config (not found) 新建一个文件：/etc/rabbitmq/rabbitmq.config，输入一下配置内容： 1[&#123;rabbit, [&#123;loopback_users, []&#125;]&#125;]. 重启一下RabbitMQ： 123systemctl daemon-reloadsystemctl stop rabbitmq-server.servicesystemctl start rabbitmq-server.service 开放端口 12345678##设置开放端口：firewall-cmd --permanent --zone=public --add-port=15672/tcp##重新加载配置：firewall-cmd --reload##检查已开放端口：firewall-cmd --zone=public --list-ports]]></content>
+      <categories>
+        <category>RabbitMQ</category>
+      </categories>
+      <tags>
+        <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[GitBash与cmd设置代理]]></title>
+    <url>%2Fpost%2Fe3bb5ff8.html</url>
+    <content type="text"><![CDATA[GitBash设置代理1234git config --global https.proxy http://127.0.0.1:1080git config --global https.proxy https://127.0.0.1:1080git config --global http.proxy &apos;socks5://127.0.0.1:1080&apos; git config --global https.proxy &apos;socks5://127.0.0.1:1080&apos; cmd设置代理1set http_proxy=http://127.0.0.1:1080]]></content>
+      <categories>
+        <category>others</category>
+      </categories>
+      <tags>
+        <tag>其它</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[V2RayN简单使用教程]]></title>
+    <url>%2Fpost%2F50d46b4d.html</url>
+    <content type="text"><![CDATA[由于 V2Ray 没有自带 GUI 配置界面，所以说客户端使用还是有一点不方便。而V2RayN 则是 windows下 平台一个对新手比较友好的 V2Ray GUI 客户端。 以下内容都是默认使用233blog的一键脚本安装为前提。 下面简单介绍下v2ray的简单使用： 下载v2ray core下载地址：https://github.com/v2ray/v2ray-core/releases/latest 选择 v2ray-windows-64.zip 下载，如果你的系统是 32 位的那就选择 v2ray-windows-32.zip。下载完成，解压。 下载 v2RayN下载链接： https://github.com/2dust/v2rayN/releases/latest然后选择 V2RayN.exe 下载将下载完成后的 V2RayN.exe 复制到之前打开的 V2Ray 文件夹目录 获取 v2Ray 客户端配置信息使用233blog的脚本安装完之后会显示v2ray的配置信息，也可以ssh登录到vps上后，使用命令v2ray并按1来查看v2ray配置信息。 本次举例以 ws+tls+站点伪装 为例 配置信息如下： v2ray导入v2ray配置右键选择以管理员身份运行 V2RayN.exe 程序。 打开界面如下： 注意：打开过程中，可能会提示是否允许联网的界面，全部勾选上并选择允许就行了。 选择 添加[VMess]服务器 按上面的配置进行填写 最后点击确定即可完成v2ray的配置。 v2rayN的其它配置自定义代理网址或IP点击主界面的参数设置，在弹出的窗口中，选择Core:路由设置选项卡，在下方的文本框内输入需要使用代理访问的网址即可。 设置GFWList地址GFWList地址： https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt 直接复制粘贴进去。 右击系统托盘，选择更新PAC，注意，这里必须添加完代理才可以操作。 快速添加代理没有配置，只有别人分享的vmess链接，只需要点击主界面的服务器，添加VMess服务器，导入配置文件，并选择从剪贴板导入URL，所有的参数会自动填写完成。]]></content>
+      <categories>
+        <category>v2ray</category>
+        <category>v2rayN</category>
+      </categories>
+      <tags>
+        <tag>v2ray</tag>
+        <tag>v2rayN</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Ubuntu16.0.4开启SSH服务并启用root登录SSH]]></title>
+    <url>%2Fpost%2F3f6688cf.html</url>
+    <content type="text"><![CDATA[开启SSH服务 安装openssh-server 在终端中输入: 1sudo apt-get install openssh-server 查看查看ssh服务是否启动 在终端中输入 1sudo ps -e | grep ssh 如果显示有sshd，则说明ssh服务已经启动，如果没有启动，则输入以下命令来启动ssh 1sudo service ssh start 启动完成后可ssh至服务器。 启用root登录SSH 使用ubuntu用户登录，密码为服务器配置时设置的密码，可在重置密码中修改 修改 root 密码 1sudo passwd root 修改配置文件 1sudo vi /etc/ssh/sshd_config 找到Authentication下面的配置：1234# Authentication:LoginGraceTime 120PermitRootLogin prohibit-passwordStrictModes yes 把PermitRootLogin源行注释，并增加一行为：12#PermitRootLogin prohibit-password PermitRootLogin yes 重启ssh 1sudo service ssh restart 接下来就可以用XShell以root身份登录了。]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>ssh</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>ssh</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[IOS下使用v2ray之简单教程]]></title>
+    <url>%2Fpost%2Fc4024172.html</url>
+    <content type="text"><![CDATA[上次收集了一些v2ray的一键脚本，有些朋友问我在IOS上如何使用，本编内容就介绍下IOS下v2ray常用客户端的使用教程。 服务端配置新手推荐使用233blog的一键脚本来配置v2ray。可参考我上篇博客文章，也可直接访问233Blog获取一键脚本。 以下内容都是默认使用233blog的一键脚本安装为前提。 客户端V2Ray 官方没有 iOS 客户端，第三方客户端有：kitsunebi，shadowrocket，Pepi (ShadowRay)。 kitsunebikitsunebi目前对 V2Ray 支持最完全的应用，支持所有 vmess 链接使用方。 一、扫码配置（推荐）使用脚本安装完成后会提示生成二维码链接，打开链接就可以得到二维码，直接扫码配置即可，注意，需要手动输入AlterId。如果安装后忘记生成二维码链接，可以输入命令1v2ray qr 生成二维码链接后再进行扫码操作。 再次提醒：需要手动输入AlterId。 二、手动输入配置 点击右上角加号，进入配置填写页面。 依次填入地址，端口，UUID，选择加密方式，填写AlterId 加密方式有如下几种，根据自己在服务器上的配置进行选择 传输协议： 传输协议分为tcp,kcp与ws(websocket)。 tcp最简单，直接选择tcp协议就行了，无需其它配置。kcp传输协议KCP则需要选择伪装头部，当然也可以不进行伪装，以服务器配置为准进行选择。 我的配置如下 ws传输协议ws则需要填写ws路径与ws host，如果是HTTPS还需要选择TLS。我的配置（ws+站点伪装+tls）如下，可以进行参考。 Shadowrocket小火箭大家应该都知道，对于v2ray缺点就是不支持kcp,并且不支持扫码添加v2ray配置（修正，只支持小火箭自己导出的二维码）。 手动输入配置ws+tls+站点伪装 如果不需要站点伪装，直接把最下面的输入框留空就行了。]]></content>
+      <categories>
+        <category>翻山越岭</category>
+        <category>v2ray</category>
+      </categories>
+      <tags>
+        <tag>v2ray</tag>
+        <tag>IOS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[v2ray一键脚本收集整理]]></title>
+    <url>%2Fpost%2Fa5cb4d7f.html</url>
+    <content type="text"><![CDATA[本文主要收集网络上的v2ray脚本，该页面的脚本都经过本人验证使用没问题。 最后更新时间：2018-03-06 V2Ray 基于 Nginx 的 vmess+ws+tls 一键安装脚本 from: https://github.com/wulabing/V2Ray_ws-tls_bash_onekey 安装方式1git clone https://github.com/wulabing/V2Ray_ws-tls_bash_onekey.git temp &amp;&amp; cd temp &amp;&amp; bash install.sh | tee v2log.txt V2ray core 更新方式1执行： bash &lt;(curl -L -s https://install.direct/go.sh) 启动方式12启动 V2ray：systemctl start v2ray启动 Nginx：systemctl start nginx V2RAY 基于 NGINX 的 VMESS+WS+TLS+Website(Use Host) from: https://github.com/dylanbai8/V2Ray_ws-tls_Website_onekey 1bash &lt;(curl https://raw.githubusercontent.com/dylanbai8/V2Ray_ws-tls_Website_onekey/master/install.sh) 尽量使用 Debian8 , 如果需要修改配置，运行脚本重新安装一次即可。 最好用的 V2Ray 一键安装脚本 &amp; 管理脚本安装1bash &lt;(curl -s -L https://233blog.com/v2ray.sh) 快速管理12345678910111213141516v2ray info 查看 V2Ray 配置信息v2ray config 修改 V2Ray 配置v2ray link 生成 V2Ray 配置文件链接v2ray infolink 生成 V2Ray 配置信息链接v2ray qr 生成 V2Ray 配置二维码链接v2ray ss 修改 Shadowsocks 配置v2ray ssinfo 查看 Shadowsocks 配置信息v2ray ssqr 生成 Shadowsocks 配置二维码链接v2ray status 查看 V2Ray 运行状态v2ray start 启动 V2Rayv2ray stop 停止 V2Rayv2ray restart 重启 V2Rayv2ray log 查看 V2Ray 运行日志v2ray update 更新 V2Rayv2ray update.sh 更新 V2Ray 管理脚本v2ray uninstall 卸载 V2Ray 配置文件路径 from： https://233blog.com/post/16 123V2Ray 配置文件路径：/etc/v2ray/config.jsonCaddy 配置文件路径：/etc/caddy/Caddyfile脚本配置文件路径: /etc/v2ray/233blog_v2ray_backup.txt 备注V2Ray 客户端配置文件解压密码为 233blog.com，SOCKS 监听端口为 2333， HTTP 监听端口为 6666可能某些 V2Ray 客户端的选项或描述略有不同，但事实上，此脚本显示的 V2Ray 配置信息已经足够详细，由于客户端的不同，请对号入座。]]></content>
+      <categories>
+        <category>v2ray</category>
+      </categories>
+      <tags>
+        <tag>v2ray</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[CentOS7安装Nginx与DotNetCore环境]]></title>
+    <url>%2Fpost%2F8b1ab2d9.html</url>
+    <content type="text"><![CDATA[安装 dotnet core环境 添加 dotnet 产品源12sudo rpm --import https://packages.microsoft.com/keys/microsoft.ascsudo sh -c &apos;echo -e &quot;[packages-microsoft-com-prod]\nname=packages-microsoft-com-prod \nbaseurl= https://packages.microsoft.com/yumrepos/microsoft-rhel7.3-prod\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc&quot; &gt; /etc/yum.repos.d/dotnetdev.repo&apos; 2.安装 .NET SDK 123sudo yum updatesudo yum install libunwind libicusudo yum install dotnet-sdk-2.1.4 安装nginx1.添加 Nginx 仓库 1sudo yum install epel-release 安装 Nginx 1sudo yum install nginx 启动 Nginx 1sudo systemctl start nginx 防火墙允许HTTP与HTTPS传输 123sudo firewall-cmd --permanent --zone=public --add-service=http sudo firewall-cmd --permanent --zone=public --add-service=httpssudo firewall-cmd --reload Nginx 开机启动 1sudo systemctl enable nginx 参考文章： https://www.microsoft.com/net/learn/get-started/linuxcentos https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-centos-7]]></content>
+      <categories>
+        <category>.net core</category>
+      </categories>
+      <tags>
+        <tag>.net core</tag>
+        <tag>centos</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[ngrok配置https]]></title>
+    <url>%2Fpost%2F8f3e9247.html</url>
+    <content type="text"><![CDATA[最近团队要做微信小程序的开发，需要用到https，以前搭建的ngrok由于使用的是自己签发的证书，所以网址栏会显示大大的红叉，对于强迫症的人实在是难受，搜索了网上的教程及结合自己的摸索，现记录下来，方便后人能方便的配置。 第一部分 申请AlphaSSL 泛域名证书因为使用的是4级域名，并且域名不可确定，所以需要申请泛域名证书。本次申请的是免费的泛域名证书。 准备域名邮箱由于证书验证需要域名邮箱作验证，所以首先需要准备好接收邮件的域名邮箱。 域名邮箱可以选择 QQ 域名邮箱，很简单方便，也有操作指南，设置好 MX 解析后用另一个邮箱给域名邮箱发一封邮件测试无误即可。目前 QQ 邮箱并没有屏蔽 AlphaSSL 发来的邮件，因此可以放心使用。必须使用下面的 用户名@域名 邮箱之一才能接收到验证邮件： 12345admin@your-domain.comadministrator@your-domain.comhostmaster@your-domain.compostmaster@your-domain.comwebmaster@your-domain.com 具体步骤自己摸索下,这里就不细说了。 如果有自己的企业邮箱，也是可以使用的，但是一定要添加上面格式的邮箱账户才可收邮件，谨记！ QQ企业邮箱地址：https://exmail.qq.com 准备CSR 文件AlphaSSL 证书的申请，需要先提交域名的 CSR（证书请求文件），然后用域名邮箱作验证，保证你是这个域名的所有者。CSR 很好生成，可以用 openssl 在本地生成，也可以去各大工具网站在线生成。本次使用https://www.chinassl.net/ssltools/generator-csr.html来生成CSR文件。 填写完信息后，最好勾选上发送生成的CSR文件到上面输入的邮箱。 注意：域名这里填写*.tunnel.51ngrok.cn，大家根据自己的域名填写。一定保存好生成 CSR 文件时同时生成的 Key 文件，部署证书时要用。 域名的准备工作进入申请证书页面https://en.assl.space/ 申请证书的页面需要你填写一个 Email Address. 这里最好填写域名的联系人邮箱（在域名提供商那里可以查询得到的），这是接收证书的邮箱，填写其它邮箱可能会不能接收到邮件，一定要注意。 另外最好关闭域名保护与清除域名的CNAME记录，防止AlphaSSL无法校验域名信息。 收到邮件后的工作同意申请链接只能点击一次 在域名邮箱收到验证邮件之后，点击 I Approve，AlphaSSL 便会把证书的 CRT 以邮件内容的形式发送给你，注意，I Approve 这个按钮只能点击一次，点击后不管有没有收到邮件，都会失效。因此接收证书的邮箱一定要填对，确保可以收到 CRT。 合并证书在收到的邮件最下方就是你申请的域名证书。 新建一个文本文件，把邮件中的域名证书内容粘贴进去，这里要注意的是需要包含 BEGIN 这行。 然后到AlphaSSL网站https://www.alphassl.com/support/install-root-certificate.html把中级证书也到粘贴到上面内容的后面。 文本文件后缀改为.crt的证书文件。这个crt文件是可以直接部署到服务器上，并且不会因为证书链不完整而被浏览器报错。 第二部分 把证书编译进ngrok准备证书在AlphaSSL官网下载Root CA，并重命名为ngrokroot.crt 快速下载地址：点我下载 把上面合成的证书重命名为snakeoil.crt 把申请证书时生成的私钥key文件重命名为snakeoil.key 把ngrokroot.crt拷贝到assets/client/tls/文件夹下覆盖原来的文件把snakeoil.crt拷贝到assets/server/tls/文件夹下覆盖原来的文件把snakeoil.key拷贝到assets/server/tls/文件夹下覆盖原来的文件拷贝snakeoil.key到bin文件夹内拷贝snakeoil.crt到bin文件夹内 编辑ngrok服务端与客户端编译生成ngrok服务端123#如果是32位系统，这里 GOARCH=386GOOS=linux GOARCH=amd64 make release-server release-client 编译之后，就会在ngrok源码的bin目录下生成两个可执行文件：ngrokd、ngrok。其中ngrokd就是ngrok的服务端程序，ngrok就是ngrok的客户端程序。由于现在生成的客户端ngrok只能在linux下运行，因此如果想要生成windows下的客户端程序，需要继续进行交叉编译。 交叉编译生成windows客户端123#如果是32位系统，这里 GOARCH=386GOOS=windows GOARCH=amd64make release-server release-client 运行ngrok服务端1./ngrokd -domain=&quot;tunnel.51ngrok.cn&quot; -httpAddr=&quot;:8080&quot; -httpsAddr=&quot;:8081&quot; -tlsKey=&quot;snakeoil.key&quot; -tlsCrt=&quot;snakeoil.crt&quot; 推荐使用screen管理！ 第三部分 配置nginx修改nginx配置文件，添加如下内容 1234567891011121314151617server &#123; listen 80; listen 443; server_name *.tunnel.51ngrok.cn; location / &#123; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header Host $http_host:8080; proxy_set_header X-Nginx-Proxy true; proxy_set_header Connection &quot;&quot;; proxy_pass http://127.0.0.1:8080; &#125; ssl on; ssl_certificate /usr/ngrok/bin/51ngrok.crt; ssl_certificate_key /usr/ngrok/bin/51ngrok.key; ssl_session_timeout 5m;&#125;]]></content>
+      <categories>
+        <category>ngrok</category>
+      </categories>
+      <tags>
+        <tag>ngrok</tag>
+        <tag>https</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[WebApi接口参数传参详解]]></title>
+    <url>%2Fpost%2Ffcb54dee.html</url>
+    <content type="text"><![CDATA[一、Get请求基础类型参数123456789101112131415161718[HttpGet]public string GetAllChargingData(int id, string name)&#123; return &quot;ChargingData&quot; + id;&#125;---$.ajax(&#123; type: &quot;get&quot;, url: &quot;http://localhost:27221/api/Charging/GetAllChargingData&quot;, data: &#123; id: 1, name: &quot;Jim&quot;, bir: &quot;1988-09-11&quot;&#125;, success: function (data, status) &#123; if (status == &quot;success&quot;) &#123; $(&quot;#div_test&quot;).html(data); &#125; &#125;&#125;); 实体作为参数Get请求的时候可以在参数里面加上[FromUri]即可直接得到对象 123456789101112131415var postdata = &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;;$.ajax(&#123; type: &quot;get&quot;, url: &quot;http://localhost:27221/api/Charging/GetAllChargingData&quot;, data: postdata, success: function (data, status) &#123; &#125;&#125;);---[HttpGet]public string GetAllChargingData([FromUri]TB_CHARGING obj)&#123; return &quot;ChargingData&quot; + obj.ID;&#125; 如果不想使用[FromUri]这些在参数里面加特性的这种“怪异”写法，也可以采用先序列化，再在后台反序列的方式。 1234567891011121314151617181920$.ajax(&#123; type: &quot;get&quot;, url: &quot;http://localhost:27221/api/Charging/GetByModel&quot;, contentType: &quot;application/json&quot;, data: &#123; strQuery: JSON.stringify(&#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;) &#125;, success: function (data, status) &#123; if (status == &quot;success&quot;) &#123; $(&quot;#div_test&quot;).html(data); &#125; &#125;&#125;);---[HttpGet]public string GetByModel(string strQuery)&#123; TB_CHARGING oData = Newtonsoft.Json.JsonConvert.DeserializeObject&lt;TB_CHARGING&gt;(strQuery); return &quot;ChargingData&quot; + oData.ID;&#125; 数组作为参数一般get请求不建议将数组作为参数，因为我们知道get请求传递参数的大小是有限制的，最大1024字节，数组里面内容较多时，将其作为参数传递可能会发生参数超限丢失的情况。 “怪异”的get请求(其实是RESETful风格API方法名)方法名以Get开头，WebApi会自动默认这个请求就是get请求，而如果你以其他名称开头而又不标注方法的请求方式，那么这个时候服务器虽然找到了这个方法，但是由于请求方式不确定，所以直接返回给你405——方法不被允许的错误。 最后结论：所有的WebApi方法最好是加上请求的方式（[HttpGet]/[HttpPost]/[HttpPut]/[HttpDelete]），不要偷懒，这样既能防止类似的错误，也有利于方法的维护，别人一看就知道这个方法是什么请求。 二、Post请求基础类型参数传递多个基础类型的数据 post请求的基础类型的参数和get请求有点不一样，我们知道get请求的参数是通过url来传递的，而post请求则是通过http的请求体中传过来的，WebApi的post请求也需要从http的请求体里面去取参数。 1234567891011121314$.ajax(&#123; type: &quot;post&quot;, url: &quot;http://localhost:27221/api/Charging/SaveData&quot;, data: &#123; &quot;&quot;: &quot;Jim&quot; &#125;, success: function (data, status) &#123;&#125;&#125;);---[HttpPost]public bool SaveData([FromBody]string NAME)&#123; return true;&#125; FromBody和我们一般通过url取参数的机制则不同，它的机制是=value，没有key的概念，并且如果你写了key(比如你的ajax参数写的{NAME:”Jim”})，后台反而得到的NAME等于null。不信你可以试试。 传递多个基础类型的数据12345678910111213141516$.ajax(&#123; type: &quot;post&quot;, url: &quot;http://localhost:27221/api/Charging/SaveData&quot;, contentType: &apos;application/json&apos;, data: JSON.stringify(&#123; NAME: &quot;Jim&quot;,DES:&quot;备注&quot; &#125;), success: function (data, status) &#123;&#125;&#125;);---[HttpPost]public object SaveData(dynamic obj)&#123; var strName = Convert.ToString(obj.NAME); return strName;&#125; 通过dynamic动态类型能顺利得到多个参数，省掉了[FromBody]这个累赘，并且ajax参数的传递不用使用”无厘头”的{“”:”value”}这种写法，有没有一种小清新的感觉~~有一点需要注意的是这里在ajax的请求里面需要加上参数类型为Json，即 contentType: ‘application/json’, 这个属性。 实体作为参数单个实体作为参数1234567891011$.ajax(&#123; type: &quot;post&quot;, url: &quot;http://localhost:27221/api/Charging/SaveData&quot;, data: &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;, success: function (data, status) &#123;&#125;&#125;);[HttpPost]public bool SaveData(TB_CHARGING oData)&#123; return true;&#125; 原理解释：使用实体作为参数的时候，前端直接传递普通json，后台直接使用对应的类型去接收即可，不用FromBody。但是这里需要注意的一点就是，这里不能指定contentType为appplication/json，否则，参数无法传递到后台。 post请求默认是将表单里面的数据的key/value形式发送到服务，而我们的服务器只需要有对应的key/value属性值的对象就可以接收到。而如果使用application/json，则表示将前端的数据以序列化过的json传递到后端，后端要把它变成实体对象，还需要一个反序列化的过程。 12345678910111213141516var postdata = &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;;$.ajax(&#123; type: &quot;post&quot;, url: &quot;http://localhost:27221/api/Charging/SaveData&quot;, contentType: &apos;application/json&apos;, data: JSON.stringify(postdata), success: function (data, status) &#123;&#125;&#125;);---[HttpPost]public bool SaveData(TB_CHARGING lstCharging)&#123; return true;&#125; 如果指定了contentType为application/json，则必须要传递序列化过的对象；如果使用post请求的默认参数类型，则前端直接传递json类型的对象即可。 实体和基础类型一起作为参数传递123456789101112131415161718var postdata = &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;;$.ajax(&#123; type: &quot;post&quot;, url: &quot;http://localhost:27221/api/Charging/SaveData&quot;, contentType: &apos;application/json&apos;, data: JSON.stringify(&#123; NAME:&quot;Lilei&quot;, Charging:postdata &#125;), success: function (data, status) &#123;&#125;&#125;);---[HttpPost]public object SaveData(dynamic obj)&#123; var strName = Convert.ToString(obj.NAME); var oCharging = Newtonsoft.Json.JsonConvert.DeserializeObject&lt;TB_CHARGING&gt;(Convert.ToString(obj.Charging)); return strName;&#125; 数组作为参数（1）基础类型数组 12345678910111213141516var arr = [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;];$.ajax(&#123; type: &quot;post&quot;, url: &quot;http://localhost:27221/api/Charging/SaveData&quot;, contentType: &apos;application/json&apos;, data: JSON.stringify(arr), success: function (data, status) &#123; &#125;&#125;);--[HttpPost]public bool SaveData(string[] ids)&#123; return true;&#125; （2）实体集合 1234567891011121314151617181920var arr = [ &#123; ID: &quot;1&quot;, NAME: &quot;Jim&quot;, CREATETIME: &quot;1988-09-11&quot; &#125;, &#123; ID: &quot;2&quot;, NAME: &quot;Lilei&quot;, CREATETIME: &quot;1990-12-11&quot; &#125;, &#123; ID: &quot;3&quot;, NAME: &quot;Lucy&quot;, CREATETIME: &quot;1986-01-10&quot; &#125;];$.ajax(&#123; type: &quot;post&quot;, url: &quot;http://localhost:27221/api/Charging/SaveData&quot;, contentType: &apos;application/json&apos;, data: JSON.stringify(arr), success: function (data, status) &#123;&#125;&#125;);---[HttpPost]public bool SaveData(List&lt;TB_CHARGING&gt; lstCharging)&#123; return true;&#125; 后台发送请求参数的传递如果我们通过后台去发送请求是否也是可行的呢？我们以实体对象作为参数来传递写写代码试一把。 123456789101112131415161718192021222324252627282930313233343536public void TestReques()&#123; //请求路径 string url = &quot;http://localhost:27221/api/Charging/SaveData&quot;; //定义request并设置request的路径 WebRequest request = WebRequest.Create(url); request.Method = &quot;post&quot;; //初始化request参数 string postData = &quot;&#123; ID: \&quot;1\&quot;, NAME: \&quot;Jim\&quot;, CREATETIME: \&quot;1988-09-11\&quot; &#125;&quot;; //设置参数的编码格式，解决中文乱码 byte[] byteArray = Encoding.UTF8.GetBytes(postData); //设置request的MIME类型及内容长度 request.ContentType = &quot;application/json&quot;; request.ContentLength = byteArray.Length; //打开request字符流 Stream dataStream = request.GetRequestStream(); dataStream.Write(byteArray, 0, byteArray.Length); dataStream.Close(); //定义response为前面的request响应 WebResponse response = request.GetResponse(); //获取相应的状态代码 Console.WriteLine(((HttpWebResponse)response).StatusDescription); //定义response字符流 dataStream = response.GetResponseStream(); StreamReader reader = new StreamReader(dataStream); string responseFromServer = reader.ReadToEnd();//读取所有 Console.WriteLine(responseFromServer);&#125; 本文出处：博客园 懒得安分 http://www.cnblogs.com/landeanfen/ 本博客只对原文进行了摘要与抄录，若有侵权，请告知！]]></content>
+      <categories>
+        <category>.net</category>
+        <category>webapi</category>
+      </categories>
+      <tags>
+        <tag>.net</tag>
+        <tag>webapi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[微信内调试小工具vConsole]]></title>
+    <url>%2Fpost%2Fc295aa6a.html</url>
+    <content type="text"><![CDATA[vConsole是腾讯出的一个轻量、可拓展、针对手机网页的前端开发者调试面板。 特性 查看 console 日志 查看网络请求 查看页面 element 结构 查看 Cookies 和 localStorage 手动执行 JS 命令行 自定义插件 上手下载 vConsole 的最新版本。（不要直接下载 dev 分支下的 dist/vconsole.min.js） 或者使用 npm 安装： 1npm install vconsole 引入 dist/vconsole.min.js 到项目中： 123456&lt;script src=&quot;path/to/vconsole.min.js&quot;&gt;&lt;/script&gt;&lt;script&gt; // 初始化 var vConsole = new VConsole(); console.log(&apos;Hello world&apos;);&lt;/script&gt; 使用方法初始化 &amp; 配置引入后, 需要手动初始化 vConsole： 1var vConsole = new VConsole(option); option 是一个选填的 object 对象，具体配置定义请参阅 公共属性及方法。 使用 setOption() 来更新 option： 1234567891011vConsole.setOption(&apos;maxLogNumber&apos;, 5000);// 或者：vConsole.setOption(&#123;maxLogNumber: 5000&#125;);### 打印日志与 PC 端打印 log 一致，可直接使用 `console.log()` 等方法直接打印日志：```javascriptconsole.log(&apos;Hello World&apos;); 未加载 vConsole 模块时，console.log() 会直接打印到原生控制台中；加载 vConsole 后，日志会打印到页面前端+原生控制台。 日志类型支持 5 种不同类型的日志，会以不同的颜色输出到前端面板： 12345console.log(&apos;foo&apos;); // 白底黑字console.info(&apos;bar&apos;); // 白底紫字console.debug(&apos;oh&apos;); // 白底黄字console.warn(&apos;foo&apos;); // 黄底黄字console.error(&apos;bar&apos;); // 红底红字 Object/Array 结构化展示支持打印 Object 或 Array 变量，会以结构化 JSON 形式输出（并折叠）： 123456789var obj = &#123;&#125;;obj.foo = &apos;bar&apos;;console.log(obj);/*Object&#123; foo: &quot;bar&quot;&#125;*/ 多态支持传入多个参数，会以空格隔开： 12var uid = 233;console.log(&apos;UserID:&apos;, uid); // 打印出 UserID: 233 特殊格式支持使用 [system] 作为第一个参数，来将 log 输出到 System 面板： 12console.log(&apos;[system]&apos;, &apos;foo&apos;); // &apos;foo&apos; 会输出到 System 面板console.log(&apos;[system] bar&apos;); // 这行日志会输出到 Log 面板而非 System 面板 内置插件Network 网络 所有 XMLHttpRequest 请求都会被显示到 Network tab 中。 若不希望一个请求显示在面板中，可添加属性 _noVConsole = true 到 XHR 对象中： 1234var xhr = new XMLHttpRequest();xhr._noVConsole = true; // 不会显示到 tab 中xhr.open(&quot;GET&quot;, &apos;http://example.com/&apos;);xhr.send(); 文档索引文档索引 以上部分来源于github，本人只做了抄录。详细可进项目查看！]]></content>
+      <categories>
+        <category>微信</category>
+      </categories>
+      <tags>
+        <tag>微信</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[MVC中如何在Views目录下存放css,js,html文件]]></title>
+    <url>%2Fpost%2Fe1f81db1.html</url>
+    <content type="text"><![CDATA[去年做项目的时候，用到换换肤的技术，但是模板放在View目录后，css，js文件不能访问。参考了下博客园的文章，把问题解决了。现在把解决方法总结一下。 如何配置才能访问css，js文件默认情况下Views目录下是不能访问除了视图文件之外的文件的在Views目录下的Web.config中添加如下节点信息 123456789101112&lt;system.webServer&gt; &lt;validation validateIntegratedModeConfiguration=&quot;false&quot; /&gt; &lt;handlers&gt; &lt;remove name=&quot;BlockViewHandler&quot;/&gt; &lt;add name=&quot;js&quot; verb=&quot;GET,HEAD&quot; path=&quot;*.css&quot; type=&quot;System.Web.StaticFileHandler&quot; /&gt; &lt;add name=&quot;css&quot; verb=&quot;GET,HEAD&quot; path=&quot;*.css&quot; type=&quot;System.Web.StaticFileHandler&quot; /&gt; &lt;add name=&quot;jpg&quot; verb=&quot;GET,HEAD&quot; path=&quot;*.jpg&quot; type=&quot;System.Web.StaticFileHandler&quot; /&gt; &lt;add name=&quot;png&quot; verb=&quot;GET,HEAD&quot; path=&quot;*.png&quot; type=&quot;System.Web.StaticFileHandler&quot; /&gt; &lt;add name=&quot;js&quot; verb=&quot;GET,HEAD&quot; path=&quot;*.js&quot; type=&quot;System.Web.StaticFileHandler&quot; /&gt; &lt;add name=&quot;BlockViewHandler&quot; path=&quot;*&quot; verb=&quot;*&quot; preCondition=&quot;integratedMode&quot; type=&quot;System.Web.HttpNotFoundHandler&quot; /&gt; &lt;/handlers&gt; &lt;/system.webServer&gt; 如何配置才能访问静态页面在Views目录下的Web.config中添加如下节点信息 1234&lt;httpHandlers&gt; &lt;add verb=&quot;GET,HEAD&quot; path=&quot;*.html&quot; type=&quot;System.Web.StaticFileHandler&quot;/&gt; &lt;add path=&quot;*&quot; verb=&quot;*&quot; type=&quot;System.Web.HttpNotFoundHandler&quot;/&gt; &lt;/httpHandlers&gt;]]></content>
+      <categories>
+        <category>.net</category>
+        <category>mvc</category>
+      </categories>
+      <tags>
+        <tag>.net</tag>
+        <tag>mvc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[内联块、浮动、定位]]></title>
+    <url>%2Fpost%2F72e8fe33.html</url>
+    <content type="text"><![CDATA[块元素的特征：1、默认独占一行2、没有宽度时，默认撑满一排3、支持所有css命令 内联元素的特征：1、宽度由内容撑开2、不支持宽高3、一行上可以显示继续跟同类的标签4、不支持上下的margin5、代码换行被解析 inline-block元素的特征：1、块在一行显示2、行内属性标签支持宽度3、没有宽度的时候内容撑开宽度 clear：元素的某个方向上不能有浮动元素clear:both;在左右两侧均不允许浮动元素 Float的特征：1、块在一排显示2、内联支持宽高3、默认内容撑开宽度4、脱离文档流5、提升层级半层 清除浮动的方法 加高 扩展性不好 父级浮动 页面中所有的元素都浮动，margin左右自动失效（floats bad！） inlin-block清浮动方法 margin左右auto失效 空标签清浮动 IE6细小高度19px，解决后IE6下还有2px偏差 br清浮动 不符合工作中，结构、样式、行为，三者分立的要求 after伪类（主流）12.clear:after&#123;content:&apos;&apos;;display:block;clear:both;&#125;.clear&#123;zoom:1;&#125; after伪类：元素内部末尾添加内容 :after{content:”添加的内容”;}IE6，7下不兼容zoom缩放a、触发IE下haslayout，使元素根据自身内容计算宽高b、FF不支持 BFC(block formatting context)标准浏览器下特有的a、float的值不为noneb、overflow的值不为visiblec、display的值为table-cell，table-caption，inline-block中的任何一个d、position值不为relative和statice、width|height|min-width|min-height；(!auto) haslayout IE浏览器下特有的a、writing-mode:tb-rlb、-ms-writing-mode:tb-rlc、zoom:(!normal) position:relative;相对定位a、不影响元素本身的特征b、不使元素脱离文档流(元素移动之后原始位置会被保留)c、如果没有定义偏移量，对元素本身没有用任何影响d、提升层级 position:absolute;绝对定位a、使元素完全脱离文档流b、使内嵌支持宽度c、块属性标签内容撑开宽度d、如果有定位父级相对于父级发生偏移，没有定位父级相对于document发生偏移e、相对定位一般都是配合绝对定位元素使用f、提升层级 position:fixed;固定定位与绝对定位的特性基本一致，车别是始终相对于整个文档进行定位；问题：IE6不支持固定定位 定位其他值：position:static;默认值position:inherit;从父元素继承定位属性的值(不兼容) 透明度：标准不透明度：1opacity:0~1; IE滤镜:1filter:alpha(opacity=0~100);]]></content>
+      <categories>
+        <category>css</category>
+      </categories>
+      <tags>
+        <tag>css</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[MVC中编译时,让View也弹出异常]]></title>
+    <url>%2Fpost%2Feb7d2892.html</url>
+    <content type="text"><![CDATA[卸载项目 编辑项目 在打开页面中 找到 (每个VS版本的节点可能有不同) 在次节点中增加 true的属性，如果你用 Debug 编译请在 Debug节点下增加 将页面拖到最下面，在最后一段处前面加上以下内容 123&lt;Target Name=&quot;MvcBuildViews&quot; AfterTargets=&quot;AfterBuild&quot; Condition=&quot;&apos;$(MvcBuildViews)&apos;==&apos;true&apos;&quot;&gt; &lt;AspNetCompiler VirtualPath=&quot;temp&quot; PhysicalPath=&quot;$(WebProjectOutputDir)&quot; /&gt;&lt;/Target&gt; 重新加载项目]]></content>
+      <categories>
+        <category>.net</category>
+        <category>mvc</category>
+      </categories>
+      <tags>
+        <tag>.net</tag>
+        <tag>mvc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[ASP.NETMVC中实现View与Controller分离]]></title>
+    <url>%2Fpost%2F33f88f8f.html</url>
+    <content type="text"><![CDATA[新建一个空的MVC项目 命名为:sharkyzh.Mvc01。如何新建在此不作一一介绍，如果不分离的话，我们就开始在该项目下的Controllers文件夹添加Controller，但是我们现在的作法是将Controller作为一个单独的项目，这个项目仅仅用来做View的操作，那究竟怎么实现呢？ 新建一个类库 sharkyzh.Mvc01.Controllers 添加引用 在此类库中添加System.Web.dll,System.Web.Abstractions.dll,System.Web.Mvc.dll，System.Web.Routing.dl的引用 新建GlobalRoutesTable类，用来注册路由 通过该类衔接Controler与View，这个类会在View的Global.asax中Application_Start使用到。按照国际惯例上代码：12345678910111213public static class GlobalRoutesTable&#123; public static void RegisterRoutes(RouteCollection routes) &#123; routes.IgnoreRoute(&quot;&#123;resource&#125;.axd/&#123;*pathInfo&#125;&quot;); //default routes routes.MapRoute( &quot;Default&quot;, &quot;&#123;controller&#125;/&#123;action&#125;/&#123;id&#125;&quot;, new &#123; controller = &quot;Home&quot;, action = &quot;Index&quot;, id = UrlParameter.Optional &#125;, new string[] &#123;&quot;sharkyzh.Mvc01.Controllers&quot;&#125; ); &#125;&#125; 新建类HomeController类 该类继承System.Web.Mvc.Controller12345public class HomeController:Controller &#123; public ViewResult Index() &#123; return View(); &#125;&#125; 将现有项目 sharkyzh.Mvc01.Controllers.dll添加到 sharkyzh.Mvc01项目中，然后在global.asax中的Application_Start中加入代码:sharkyzh.Mvc01.Controllers.GlobalRoutesTable.RegisterRoutes(RouteTable.Routes); 在 sharkyzh.Mvc01 项目中的Views下新建Home文件夹,home文件夹下建index.cshtml 视图，然后Ctrl+F5运行项目，我们就可以看到成功运行的结果了。 可能大家会想到，如果在Controllers中建文件夹，这样更有利于层次分明，那该怎么实现呢？博客园创始人@dudu的解决方案中提到了用Area来解决，然后到最后他采纳了评论中的配置路由的方案，经过我的测试，这中方案测试不通过，所以还是采用Area的方式来实现。我们紧接上面的内容1、在sharkyzh.Mvc01.Controllers项目中新建文件夹Admin2、在Admin文件夹下新建AdminAreaRegistration类，该类继承AreaRegistration3、在类中插入如下代码：123456789101112131415public class AdminAreaRegistration : AreaRegistration &#123; public override string AreaName &#123; get &#123; return &quot;Admin&quot;; &#125; &#125; public override void RegisterArea(AreaRegistrationContext context) &#123; context.MapRoute( &quot;Admin_default&quot;, &quot;Admin/&#123;controller&#125;/&#123;action&#125;/&#123;id&#125;&quot;, new &#123; controller = &quot;Home&quot;, action = &quot;Index&quot;, id = UrlParameter.Optional &#125;, new string[] &#123;&quot;NaoGuaZi.MvcExample12.Controllers.Admin&quot;&#125; ); &#125;&#125; 4、新建HomeController类继承Controller123public ViewResult Index() &#123; return View(&quot;~/Views/Admin/Home/Index.cshtml&quot;);&#125; 5、在 sharkyzh.Mvc01 项目中的Views下新建Admin/Home文件夹，新建名为Index.cshtml视图。然后Ctrl+F5运行，在浏览器中输入http://localhost:端口号/admin/home/index即可成功访问。]]></content>
+      <categories>
+        <category>.net</category>
+        <category>mvc</category>
+      </categories>
+      <tags>
+        <tag>.net</tag>
+        <tag>mvc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[CentOS7防火墙开放端口]]></title>
+    <url>%2Fpost%2F91400291.html</url>
+    <content type="text"><![CDATA[CentOS升级到7之后，发现无法使用iptables控制Linuxs的端口，google之后发现Centos 7使用firewalld代替了原来的iptables。 下面记录如何使用firewalld开放Linux端口： 开启端口:1firewall-cmd --zone=public --add-port=80/tcp --permanent 命令含义： 12345--zone #作用域--add-port=80/tcp #添加端口，格式为：端口/通讯协议--permanent #永久生效，没有此参数重启后失效 重启防火墙1firewall-cmd --reload]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[linux下screen命令详解]]></title>
+    <url>%2Fpost%2F40ed92e7.html</url>
+    <content type="text"><![CDATA[一、背景系统管理员经常需要SSH 或者telent 远程登录到Linux 服务器，经常运行一些需要很长时间才能完成的任务，比如系统备份、ftp 传输等等。通常情况下我们都是为每一个这样的任务开一个远程终端窗口，因为它们执行的时间太长了。必须等待它们执行完毕，在此期间不能关掉窗口或者断开连接，否则这个任务就会被杀掉，一切半途而废了。 二、简介GNU Screen是一款由GNU计划开发的用于命令行终端切换的自由软件。用户可以通过该软件同时连接多个本地或远程的命令行会话，并在其间自由切换。 GNU Screen可以看作是窗口管理器的命令行界面版本。它提供了统一的管理多个会话的界面和相应的功能。 ● 会话恢复只要Screen本身没有终止，在其内部运行的会话都可以恢复。这一点对于远程登录的用户特别有用——即使网络连接中断，用户也不会失去对已经打开的命令行会话的控制。只要再次登录到主机上执行screen -r就可以恢复会话的运行。同样在暂时离开的时候，也可以执行分离命令detach，在保证里面的程序正常运行的情况下让Screen挂起（切换到后台）。这一点和图形界面下的VNC很相似。 ● 多窗口在Screen环境下，所有的会话都独立的运行，并拥有各自的编号、输入、输出和窗口缓存。用户可以通过快捷键在不同的窗口下切换，并可以自由的重定向各个窗口的输入和输出。Screen实现了基本的文本操作，如复制粘贴等；还提供了类似滚动条的功能，可以查看窗口状况的历史记录。窗口还可以被分区和命名，还可以监视后台窗口的活动。 ● 会话共享Screen可以让一个或多个用户从不同终端多次登录一个会话，并共享会话的所有特性（比如可以看到完全相同的输出）。它同时提供了窗口访问权限的机制，可以对窗口进行密码保护。 GNU’s Screen 官方站点：http://www.gnu.org/software/screen/ 三、语法1# screen [-AmRvx -ls -wipe][-d &lt;作业名称&gt;][-h &lt;行数&gt;][-r &lt;作业名称&gt;][-s ][-S &lt;作业名称&gt;] 参数说明 -A 将所有的视窗都调整为目前终端机的大小。 -d &lt;作业名称&gt; 将指定的screen作业离线。 -h &lt;行数&gt; 指定视窗的缓冲区行数。 -m 即使目前已在作业中的screen作业，仍强制建立新的screen作业。 -r &lt;作业名称&gt; 恢复离线的screen作业。 -R 先试图恢复离线的作业。若找不到离线的作业，即建立新的screen作业。 -s 指定建立新视窗时，所要执行的shell。 -S &lt;作业名称&gt; 指定screen作业的名称。 -v 显示版本信息。 -x 恢复之前离线的screen作业。 -ls或–list 显示目前所有的screen作业。 -wipe 检查目前所有的screen作业，并删除已经无法使用的screen作业。 四、常用screen参数screen -S yourname -&gt; 新建一个叫yourname的session screen -ls -&gt; 列出当前所有的session screen -r yourname -&gt; 回到yourname这个session screen -d yourname -&gt; 远程detach某个session screen -d -r yourname -&gt; 结束当前session并回到yourname这个session 在每个screen session 下，所有命令都以 ctrl+a(C-a) 开始。 C-a ? -&gt; 显示所有键绑定信息 C-a c -&gt; 创建一个新的运行shell的窗口并切换到该窗口 C-a n -&gt; Next，切换到下一个 window C-a p -&gt; Previous，切换到前一个 window C-a 0..9 -&gt; 切换到第 0..9 个 window Ctrl+a [Space] -&gt; 由视窗0循序切换到视窗9 C-a C-a -&gt; 在两个最近使用的 window 间切换 C-a x -&gt; 锁住当前的 window，需用用户密码解锁 C-a d -&gt; detach，暂时离开当前session，将目前的 screen session (可能含有多个 windows) 丢到后台执行，并会回到还没进 screen 时的状态，此时在 screen session 里，每个 window 内运行的 process (无论是前台/后台)都在继续执行，即使 logout 也不影响。 C-a z -&gt; 把当前session放到后台执行，用 shell 的 fg 命令则可回去。 C-a w -&gt; 显示所有窗口列表 C-a t -&gt; Time，显示当前时间，和系统的 load C-a k -&gt; kill window，强行关闭当前的 window C-a [ -&gt; 进入 copy mode，在 copy mode 下可以回滚、搜索、复制就像用使用 vi 一样 C-b Backward，PageUp C-f Forward，PageDown H(大写) High，将光标移至左上角 L Low，将光标移至左下角 0 移到行首 $ 行末 w forward one word，以字为单位往前移 b backward one word，以字为单位往后移 Space 第一次按为标记区起点，第二次按为终点 Esc 结束 copy mode C-a ] -&gt; Paste，把刚刚在 copy mode 选定的内容贴上 五、使用 screen5.1 安装screen 流行的Linux发行版（例如Red Hat Enterprise Linux）通常会自带screen实用程序，如果没有的话，可以从GNU screen的官方网站下载。1yum install screen -y 5.2 创建一个新的窗口 安装完成后，直接敲命令screen就可以启动它。但是这样启动的screen会话没有名字，实践上推荐为每个screen会话取一个名字，方便分辨：1screen -S op1 screen启动后，会创建第一个窗口，也就是窗口No. 0，并在其中打开一个系统默认的shell，一般都会是bash。所以你敲入命令screen之后，会立刻又返回到命令提示符，仿佛什么也没有发生似的，其实你已经进入Screen的世界了。当然，也可以在screen命令之后加入你喜欢的参数，使之直接打开你指定的程序，例如：1screen vi changeworld.txt screen创建一个执行vi david.txt的单窗口会话，退出vi 将退出该窗口/会话。 5.3 查看窗口和窗口名称 打开多个窗口后，可以使用快捷键C-a w列出当前所有窗口。如果使用文本终端，这个列表会列在屏幕左下角，如果使用X环境下的终端模拟器，这个列表会列在标题栏里。窗口列表的样子一般是这样：10$ bash 1-$ bash 2*$ bash 这个例子中我开启了三个窗口，其中*号表示当前位于窗口2，-号表示上一次切换窗口时位于窗口1。 Screen默认会为窗口命名为编号和窗口中运行程序名的组合，上面的例子中窗口都是默认名字。练习了上面查看窗口的方法，你可能就希望各个窗口可以有不同的名字以方便区分了。可以使用快捷键C-a A来为当前窗口重命名，按下快捷键后，Screen会允许你为当前窗口输入新的名字，回车确认。 5.4 会话分离与恢复 你可以不中断screen窗口中程序的运行而暂时断开（detach）screen会话，并在随后时间重新连接（attach）该会话，重新控制各窗口中运行的程序。例如，我们打开一个screen窗口编辑/tmp/changeworld.txt文件： 1screen vi /tmp/changeworld.txt 之后我们想暂时退出做点别的事情，比如出去散散步，那么在screen窗口键入C-a d，Screen会给出detached提示：暂时中断会话 半个小时之后回来了，找到该screen会话：1screen -ls 重新连接会话：1screen -r 12865 一切都在。 当然，如果你在另一台机器上没有分离一个Screen会话，就无从恢复会话了。 这时可以使用下面命令强制将这个会话从它所在的终端分离，转移到新的终端上来：1screen -d 5.5 清除dead 会话 如果由于某种原因其中一个会话死掉了（例如人为杀掉该会话），这时screen -list会显示该会话为dead状态。使用screen -wipe命令清除该会话： 5.6 关闭或杀死窗口 正常情况下，当你退出一个窗口中最后一个程序（通常是bash）后，这个窗口就关闭了。另一个关闭窗口的方法是使用C-a k，这个快捷键杀死当前的窗口，同时也将杀死这个窗口中正在运行的进程。 如果一个Screen会话中最后一个窗口被关闭了，那么整个Screen会话也就退出了，screen进程会被终止。 除了依次退出/杀死当前Screen会话中所有窗口这种方法之外，还可以使用快捷键C-a :，然后输入quit命令退出Screen会话。需要注意的是，这样退出会杀死所有窗口并退出其中运行的所有程序。其实C-a :这个快捷键允许用户直接输入的命令有很多，包括分屏可以输入split等，这也是实现Screen功能的一个途径，不过个人认为还是快捷键比较方便些。 六、screen 高级应用6.1 会话共享 还有一种比较好玩的会话恢复，可以实现会话共享。假设你在和朋友在不同地点以相同用户登录一台机器，然后你创建一个screen会话，你朋友可以在他的终端上命令：1screen -x 这个命令会将你朋友的终端Attach到你的Screen会话上，并且你的终端不会被Detach。这样你就可以和朋友共享同一个会话了，如果你们当前又处于同一个窗口，那就相当于坐在同一个显示器前面，你的操作会同步演示给你朋友，你朋友的操作也会同步演示给你。当然，如果你们切换到这个会话的不同窗口中去，那还是可以分别进行不同的操作的。 6.2 会话锁定与解锁 Screen允许使用快捷键C-a s锁定会话。锁定以后，再进行任何输入屏幕都不会再有反应了。但是要注意虽然屏幕上看不到反应，但你的输入都会被Screen中的进程接收到。快捷键C-a q可以解锁一个会话。 也可以使用C-a x锁定会话，不同的是这样锁定之后，会话会被Screen所属用户的密码保护，需要输入密码才能继续访问这个会话。 6.3 发送命令到screen会话 在Screen会话之外，可以通过screen命令操作一个Screen会话，这也为使用Screen作为脚本程序增加了便利。关于Screen在脚本中的应用超出了入门的范围，这里只看一个例子，体会一下在会话之外对Screen的操作：1screen -S sandy -X screen ping www.baidu.com 这个命令在一个叫做sandy的screen会话中创建一个新窗口，并在其中运行ping命令。 6.4 屏幕分割 现在显示器那么大，将一个屏幕分割成不同区域显示不同的Screen窗口显然是个很酷的事情。可以使用快捷键C-a S将显示器水平分割，Screen 4.00.03版本以后，也支持垂直分屏，快捷键是C-a |。分屏以后，可以使用C-a 在各个区块间切换，每一区块上都可以创建窗口并在其中运行进程。 可以用C-a X快捷键关闭当前焦点所在的屏幕区块，也可以用C-a Q关闭除当前区块之外其他的所有区块。关闭的区块中的窗口并不会关闭，还可以通过窗口切换找到它。 6.5 C/P模式和操作 screen的另一个很强大的功能就是可以在不同窗口之间进行复制粘贴了。使用快捷键C-a 或者C-a [可以进入copy/paste模式，这个模式下可以像在vi中一样移动光标，并可以使用空格键设置标记。其实在这个模式下有很多类似vi的操作，譬如使用/进行搜索，使用y快速标记一行，使用w快速标记一个单词等。关于C/P模式下的高级操作，其文档的这一部分有比较详细的说明。 一般情况下，可以移动光标到指定位置，按下空格设置一个开头标记，然后移动光标到结尾位置，按下空格设置第二个标记，同时会将两个标记之间的部分储存在copy/paste buffer中，并退出copy/paste模式。在正常模式下，可以使用快捷键C-a ]将储存在buffer中的内容粘贴到当前窗口。 6.6 更多screen功能 同大多数UNIX程序一样，GNU Screen提供了丰富强大的定制功能。你可以在Screen的默认两级配置文件/etc/screenrc和$HOME/.screenrc中指定更多，例如设定screen选项，定制绑定键，设定screen会话自启动窗口，启用多用户模式，定制用户访问权限控制等等。如果你愿意的话，也可以自己指定screen配置文件。 以多用户功能为例，screen默认是以单用户模式运行的，你需要在配置文件中指定multiuser on 来打开多用户模式，通过acl*（acladd,acldel,aclchg…）命令，你可以灵活配置其他用户访问你的screen会话。更多配置文件内容请参考screen的man页。 以上文章转载自博客园David Camp的博客 链接地址： http://www.cnblogs.com/mchina/archive/2013/01/30/2880680.html]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>screen</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>screen</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[VisualStudio配合ngrok在本地调试微信]]></title>
+    <url>%2Fpost%2F2ef02ba2.html</url>
+    <content type="text"><![CDATA[打开IIS Express 的配置文件： 1C:\Users\你的用户名\Documents\IISExpress\config\applicationhost.config 对要添加外部访问的网站作修改： 123456789&lt;site name=&quot;XXY.WX&quot; id=&quot;54&quot;&gt; &lt;application path=&quot;/&quot; applicationPool=&quot;Clr4IntegratedAppPool&quot;&gt; &lt;virtualDirectory path=&quot;/&quot; physicalPath=&quot;D:\NET\XXY.WX\XXY.WX&quot;/&gt; &lt;/application&gt; &lt;bindings&gt; &lt;binding protocol=&quot;http&quot; bindingInformation=&quot;*:43362:localhost&quot;/&gt; &lt;binding protocol=&quot;http&quot; bindingInformation=&quot;*:43362:127.0.0.1&quot; /&gt; &lt;/bindings&gt;&lt;/site&gt; 以管理员运行 CMD执行下面的命令1netsh http add urlacl url=http://127.0.0.1:35201/ user=everyone 其中35201是你程序运行的端口号]]></content>
+      <categories>
+        <category>ngrok</category>
+      </categories>
+      <tags>
+        <tag>ngrok</tag>
+        <tag>微信</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[openssl将私钥和crt证书合成pfx证书]]></title>
+    <url>%2Fpost%2F33a6a02f.html</url>
+    <content type="text"><![CDATA[在IIS配置ssl的时候，安装服务器证书，发现安装后，刷新下证书就消失了，在编辑绑定的时候，可选证书中也没有安装的证书。 原因是我的证书文件的证书申请并不是在我的服务器上申请的，因此只安装crt证书会出现这种情况。 解决此问题的办法是利用openssl将私钥和服务器crt证书合成.pfx证书，然后在IIS中导入该pfx证书即可。 步骤下载安装openssl 这里我们直接使用安装包进行安装（也可自己编译），选择对应版本进行下载下载。 运行安装程序Win64OpenSSL-1_0_2e.exe，将openssl安装到C:\OpenSSL-Win64。 安装完成后，可以在控制台运行如下指令，来测试是否安装成功。 1openssl version 如果返回openssl版本号（”OpenSSL 1.0.2e 3 Dec 2015”），则表示安装成功。 合成.pfx证书 将私钥文件（server.key）和服务器crt证书文件（server.crt ），放到openssl安装目录的bin目录下。 控制台也进到此目录下，然后执行下面指令。 1openssl pkcs12 -export -out server.pfx -inkey server.key -in server.crt 然后再看bin目录下面多了一个server.pfx 文件，即为生成的pfx证书文件。 以上，将pfx导入到IIS后，就可以进行绑定了。]]></content>
+      <categories>
+        <category>https</category>
+      </categories>
+      <tags>
+        <tag>https</tag>
+        <tag>证书</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[自建ngrok服务]]></title>
+    <url>%2Fpost%2Fd82b023f.html</url>
+    <content type="text"><![CDATA[基于CentOS的自建ngrok服务 ngrok 是一个反向代理，通过在公共的端点和本地运行的 Web 服务器之间建立一个安全的通道。ngrok 可捕获和分析所有通道上的流量，便于后期分析和重放。 安装ngrok服务之前需要先配置Go和Git环境 Install Go 1.5 On CentOS 6下载编译好的二进制文件压缩包 go1.5.linux-amd64.tar.gz 12345cd /tmpwget https://storage.googleapis.com/golang/go1.5.linux-amd64.tar.gz如果提示证书错误或者无法下载，用下面这个命令试一下：wget -r -np -nd --accept=gz --no-check-certificate https://storage.googleapis.com/golang/go1.5.linux-amd64.tar.gz 解压下载的二进制压缩包到 /usr/local 1tar -C /usr/local -xvzf /tmp/go1.5.linux-amd64.tar.gz 修改环境变量 /etc/profile 12echo &quot;export PATH=\$PATH:/usr/local/go/bin&quot; &gt;&gt; /etc/profilesource /etc/profile 验证是否安装成功 12go versiongo version go1.5 linux/amd64 # 显示版本号 说明安装成功 Go1.5 安装结束 Install Git 2.5.0 On CentOS 6安装依赖包 1yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel perl-devel -y 下载源码包 git-2.5.0 12345cd /tmpwget https://www.kernel.org/pub/software/scm/git/git-2.5.0.tar.gz如果提示证书错误或者无法下载，用下面这个命令试一下：wget -r -np -nd --accept=gz --no-check-certificate wget https://www.kernel.org/pub/software/scm/git/git-2.5.0.tar.gz 解压 编译 安装12345tar xvzf /tmp/git-2.5.0.tar.gzcd git-2.5.0./configure --prefix=/usr/local/gitmakemake install 配置环境变量并验证是否安装成功12345echo &quot;export PATH=\$PATH:/usr/local/git/bin&quot; &gt;&gt; /etc/profilesource /etc/profilegit --versiongit version 2.5.0 # 显示版本号 说明安装成功 Git2.5.0 安装结束 Install ngrok 2.x On CentOS 6获取ngrok源码12cd /usr/ngrok #这里改为自己的安装目录git clone https://github.com/inconshreveable/ngrok.git 生成自签名ssl证书 “51ngrok.cn” 替换为你自己的域名 12345678910cd /tmp/ngrokopenssl genrsa -out rootCA.key 2048openssl req -x509 -new -nodes -key rootCA.key -subj &quot;/CN=51ngrok.cn&quot; -days 5000 -out rootCA.pemopenssl genrsa -out device.key 2048openssl req -new -key device.key -subj &quot;/CN=51ngrok.cn&quot; -out device.csropenssl x509 -req -in device.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out device.crt -days 5000cp rootCA.pem assets/client/tls/ngrokroot.crtcp device.crt assets/server/tls/snakeoil.crtcp device.key assets/server/tls/snakeoil.key 设置变量并生成ngrok服务端和客户端123#如果是32位系统，这里 GOARCH=386GOOS=linux GOARCH=amd64make release-server release-client 编译之后，就会在ngrok源码的bin目录下生成两个可执行文件：ngrokd、ngrok。其中ngrokd就是ngrok的服务端程序，ngrok就是ngrok的客户端程序。由于现在生成的客户端ngrok只能在linux下运行，因此如果想要生成windows下的客户端程序，需要继续进行交叉编译。 交叉编译生成windows客户端1234cd /tmp/ngrok/GOOS=windows GOARCH=amd64make release-server release-client ngrokd服务启动1234cd /usr/ngrok/bin#因为服务器上还有其他网站，这里选择端口为8080与8081./ngrokd -domain=&quot;51ngrok.cn&quot; -httpAddr=&quot;:8080&quot; -httpsAddr=&quot;:8081&quot; 推荐使用screen一个新连接来执行，或者使用nohup / &amp;后台运行。 设置nginx的端口转发修改服务器nginx安装路径下，conf文件夹下的nginx.conf文件，添加如下内容 123456789101112server &#123; listen 80; server_name *.51ngrok.cn; location / &#123; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header Host $http_host:8080; proxy_set_header X-Nginx-Proxy true; proxy_set_header Connection &quot;&quot;; proxy_pass http://127.0.0.1:8080; &#125;&#125; ngrok 客户端使用 客户端使用，拷贝刚刚生成的ngrok 或者 ngrok.exe文件到本地，创建ngrok.cfg配置文件，可以根据自己的实际情况进行配置 12345678910创建ngrok.cfg配置文件：server_addr: &quot;51ngrok.cn:4443&quot;trust_host_root_certs: false启动ngrok客户端：./ngrok -config=ngrok.cfg -subdomain test 8080ngrok客户端启动参数说明：&quot;test&quot; 是你自己定义的二级域名，不能与其他人重复&quot;8080&quot; 是你本地服务的端口 现在可以在外网通过访问http://test.51ngrok.cn这个地址来访问本地8080端口服务了]]></content>
+      <categories>
+        <category>ngrok</category>
+      </categories>
+      <tags>
+        <tag>ngrok</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Centos下Node.js生产环境搭建]]></title>
+    <url>%2Fpost%2Fde34cddd.html</url>
+    <content type="text"><![CDATA[安装依赖1sudo yum install vim openssl build-essential libssl-dev wget curl git 安装NVMNVM是管理node版本的工具，详情点我查看 1wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash 安装完成后，建议重新打开一个终端窗口来查看是否安装成功。 12#查看nvm版本nvm --version 如果出现版本号，那么表示NVM已经安装成功！ 安装Node1nvm install v6.9.5 安装完成后，使用nvm来指定使用的node版本 123nvm use v6.9.5nvm alias default v6.9.5 指定淘宝镜像源1234npm --registry=https://registry.npm.taobao.org install -g npm# 也可以安装cnpmnpm --registry=https://registry.npm.taobao.org install -g cnpm 加快npm速度1echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf &amp;&amp; sudo sysctl -p 安装nrm来管理使用源12345npm install -g nrmnrm lsnrm use taobao 安装工具包1npm i pm2 webpack gulp grunt-cli -g 注意：本文所有操作均在CentOS7下，其它系统不保证安装成功！]]></content>
+      <categories>
+        <category>node.js</category>
+      </categories>
+      <tags>
+        <tag>node.js</tag>
+      </tags>
+  </entry>
+</search>
